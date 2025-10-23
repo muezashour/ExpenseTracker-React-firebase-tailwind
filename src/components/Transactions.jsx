@@ -10,6 +10,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
 import { FaTrashAlt } from "react-icons/fa";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Transactions = () => {
     const [showTransaction, setShowTransactions]=useState(false)
@@ -106,6 +108,7 @@ const Transactions = () => {
     }
     setTransactionToDelete(null);
   };
+
 
   return (
     <div className="flex gap-3 justify-between flex-col md:flex-row lg:flex-row w-full p-6">
@@ -276,14 +279,14 @@ const Transactions = () => {
           <button onClick={()=> setShowTransactions(!showTransaction)} className="bg-black text-white py-2 px-4 rounded-full cursor-pointer block md:hidden w-fit">
               {showTransaction ?  "Hide Transactions " : "show Transactions"}
       </button>
-      
+
           {/* Recents */}
 
           <div
             className={`${showTransaction ? 'block' : 'hidden'} md:block flex flex-col bg-white rounded-2xl h-screen sm:w-full lg:w[600px] duration-300 `}
             data-aos="fade-left"
           >
-        <div className="flex flex-col p-4">
+        <div className="flex flex-col p-4 flex-shrink-0">
           <div className="flex gap-2 items-center">
             <h1>Recent Transactions</h1>
           </div>
@@ -291,7 +294,7 @@ const Transactions = () => {
             <h3 className="text-gray-400">Your latest financial activities</h3>
           </div>
         </div>
-        <ul className="flex flex-col mt-2 overflow-y-auto">
+        <ul className="flex flex-col mt-2 overflow-y-auto max-h-[80vh] scroll-smooth px-2 ">
           {[...transactions].reverse().map((transaction) => {
             const {
               id,
@@ -303,10 +306,9 @@ const Transactions = () => {
             } = transaction;
             return (
               <li
-                data-aos="fade-up"
-                data-aos-duration="600"
+                // data-aos="fade-left"
                 key={id}
-                className="flex justify-between px-6 py-4 lg:px-10 border-b-1 border-gray-200 w-full duration-300 transition-all"
+                className="flex justify-between px-6 py-4 lg:px-10 border-b-1 border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
               >
                 <div className="flex items-center gap-3">
                   <div

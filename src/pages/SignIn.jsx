@@ -5,19 +5,17 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { UserContext } from "../context/AuthContext";
 
- 
+
 const SignIn = () => {
   const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
     const { googleSignIn,loading,signInWithEmail } = UserContext();
     const signInWithGoogle = async () => {
   setError(null);
   try {
     const result = await googleSignIn();
-
 
     if (result?._tokenResponse?.isNewUser) {
       setError("This Google account is not registered. Please sign up first.");
@@ -30,8 +28,6 @@ const SignIn = () => {
     setError("Google Sign-In failed. Please try again.");
   }
 };
-
-
      const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -39,12 +35,9 @@ const SignIn = () => {
 
     if (!email || !password) {
       setError("Please provide both email and password.");
-
       return;
     }
-
     try {
-
         await signInWithEmail(email, password);
     navigate("/ExpenseTracker");
 
