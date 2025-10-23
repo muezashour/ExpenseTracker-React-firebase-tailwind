@@ -60,8 +60,8 @@ const Transactions = () => {
     toast.success("Transaction added successfully!");
 
     addTransaction(newTransaction);
-    setSelected("Select Transaction Type");
-    setSelectedCategory("Select Category");
+    setSelected("Select type...");
+    setSelectedCategory("Select category...");
     setAmount("");
     setDescription("");
     setDate(new Date());
