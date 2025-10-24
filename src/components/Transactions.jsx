@@ -10,11 +10,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
 import { FaTrashAlt } from "react-icons/fa";
-import AOS from "aos";
-import "aos/dist/aos.css";
+
 
 const Transactions = () => {
-    const [showTransaction, setShowTransactions]=useState(false)
+  // Date range filter state
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [showTransaction, setShowTransactions]=useState(false)
   const [selected, setSelected] = useState("Select type...");
   const [selectedCategory, setSelectedCategory] =
     useState("Select category...");
@@ -24,7 +26,7 @@ const Transactions = () => {
   const [error, setError] = useState("");
   // db handling
   const { addTransaction } = useAddTransaction();
-  const { transactions } = useGetTransactions();
+  const { transactions, setStartDate: setHookStartDate, setEndDate: setHookEndDate } = useGetTransactions();
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -109,6 +111,16 @@ const Transactions = () => {
     setTransactionToDelete(null);
   };
 
+  // Synchronize date filter with hook
+  React.useEffect(() => {
+    if (startDate && endDate) {
+      setHookStartDate(startDate.toISOString().split("T")[0]);
+      setHookEndDate(endDate.toISOString().split("T")[0]);
+    } else {
+      setHookStartDate(null);
+      setHookEndDate(null);
+    }
+  }, [startDate, endDate]);
 
   return (
     <div className="flex gap-3 justify-between flex-col md:flex-row lg:flex-row w-full p-6">
@@ -282,19 +294,52 @@ const Transactions = () => {
 
           {/* Recents */}
 
-          <div
-            className={`${showTransaction ? 'block' : 'hidden'} md:block flex flex-col bg-white rounded-2xl h-screen sm:w-full lg:w[600px] duration-300 `}
-            data-aos="fade-left"
-          >
-        <div className="flex flex-col p-4 flex-shrink-0">
-          <div className="flex gap-2 items-center">
-            <h1>Recent Transactions</h1>
+        <div
+          className={`${showTransaction ? 'block' : 'hidden'} md:block flex flex-col bg-white rounded-2xl h-screen sm:w-full lg:w[600px] duration-300 `}
+          data-aos="fade-left"
+        >
+          <div className="flex flex-col p-4 flex-shrink-0">
+            <div className="flex gap-2 items-center">
+              <h1>Recent Transactions</h1>
+            </div>
+            <div>
+              <h3 className="text-gray-400">Your latest financial activities</h3>
+            </div>
+            {/* Date Filter Bar */}
+            <div className="flex  flex-row gap-3 items-end justify-end mb-2 px-4">
+              <div className="flex flex-col items-start sm:w-40">
+                <label className="text-sm text-gray-500">From</label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  dateFormat="yyyy-MM-dd"
+                  className="border px-2 py-2 border-gray-400 rounded-lg text-sm w-full"
+                  placeholderText="Start date"
+                />
+              </div>
+              <div className="flex flex-col items-start sm:w-40">
+                <label className="text-sm text-gray-500">To</label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  dateFormat="yyyy-MM-dd"
+                  className="border border-gray-400 px-2 py-2 rounded-lg text-sm w-full"
+                  placeholderText="End date"
+                />
+              </div>
+              <button
+                className="ml-0 sm:ml-2 mt-2 sm:mt-0 px-4 py-2 text-xs rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition-all cursor-pointer"
+                onClick={() => {
+                  setStartDate(null);
+                  setEndDate(null);
+                }}
+                type="button"
+              >
+                Show All
+              </button>
+            </div>
           </div>
-          <div>
-            <h3 className="text-gray-400">Your latest financial activities</h3>
-          </div>
-        </div>
-        <ul className="flex flex-col mt-2 overflow-y-auto max-h-[80vh] scroll-smooth px-2 ">
+          <ul className="flex flex-col mt-2 overflow-y-auto max-h-[70vh] scroll-smooth px-2 ">
           {[...transactions].reverse().map((transaction) => {
             const {
               id,
@@ -306,7 +351,6 @@ const Transactions = () => {
             } = transaction;
             return (
               <li
-                // data-aos="fade-left"
                 key={id}
                 className="flex justify-between px-6 py-4 lg:px-10 border-b-1 border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
               >

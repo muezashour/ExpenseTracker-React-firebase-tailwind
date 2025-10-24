@@ -9,8 +9,6 @@ import { useState, useEffect } from "react";
 import { db } from "../config/firebaseConfig";
 import { useGetUserInfo } from "./useGetUserInfo";
 
-
-
 export const useGetTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [transactionTotals, setTransactionTotals] = useState({
@@ -20,17 +18,30 @@ export const useGetTransactions = () => {
     incomeCount: 0,
     expenseCount: 0,
   });
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const transactionCollectionRef = collection(db, "transactions");
   const { userID } = useGetUserInfo();
 
   const getTransactions = async () => {
     let unsubscribe;
     try {
-      const queryTransactions = query(
-        transactionCollectionRef,
-        where("userID", "==", userID),
-        orderBy("createdAt")
-      );
+      let queryTransactions;
+      if (startDate && endDate) {
+        queryTransactions = query(
+          transactionCollectionRef,
+          where("userID", "==", userID),
+          where("transactionDate", ">=", startDate),
+          where("transactionDate", "<=", endDate),
+          orderBy("createdAt")
+        );
+      } else {
+        queryTransactions = query(
+          transactionCollectionRef,
+          where("userID", "==", userID),
+          orderBy("createdAt")
+        );
+      }
       unsubscribe = onSnapshot(queryTransactions, (snapshot) => {
         let docs = [];
         let totalIncome = 0;
@@ -70,7 +81,7 @@ export const useGetTransactions = () => {
   useEffect(() => {
     if (!userID) return;
     getTransactions();
-  }, [userID]);
+  }, [userID, startDate, endDate]);
 
-  return { transactions, transactionTotals };
+  return { transactions, transactionTotals, setStartDate, setEndDate };
 };
