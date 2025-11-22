@@ -8,9 +8,8 @@ import {
   createUserWithEmailAndPassword,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-
-
 import { auth } from "../config/firebaseConfig";
+
 
 const AuthContext = createContext();
 
@@ -34,6 +33,7 @@ const navigate = useNavigate();
       };
       localStorage.setItem("auth", JSON.stringify(authInfo));
       setUser(result.user);
+
       return result.user;
     } catch (error) {
       console.error(error);
@@ -110,6 +110,7 @@ const navigate = useNavigate();
           profilePhoto: currentUser.photoURL || "",
           isAuth: true,
         }));
+
       } else {
         setUser(null);
         localStorage.removeItem("auth");
@@ -117,7 +118,7 @@ const navigate = useNavigate();
        setAuthResolved(true);
       setLoading(false);
      });
-    
+
 
     return () => unsubscribe();
   }, []);

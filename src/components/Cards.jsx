@@ -8,7 +8,7 @@ const Cards = () => {
   return (
     <div className=" flex  items-center p-7 w-full">
       <div className="flex  flex-col md:flex-row lg:flex-row  justify-center gap-4 w-full">
-        <div className="bg-white rounded-2xl shadow-sm p-8 flex-2 min-w-[280px] lg:min-w-[340px] sm:max-w-[600px] md:min-w-[220px] lg:max-w-[600px] xl:max-w-[700px]">
+        <div data-aos="fade-down" className="bg-white rounded-2xl shadow-sm p-8 flex-2 min-w-[280px] lg:min-w-[340px] sm:max-w-[600px] md:min-w-[220px] lg:max-w-[600px] xl:max-w-[700px]">
           <div className="flex justify-between items-start">
             <h2 className="text-gray-800 text-lg font-semibold">
               Total Balance
@@ -26,7 +26,7 @@ const Cards = () => {
           <p className="text-gray-500 text-sm mt-2">+ Current balance</p>
         </div>
         {/* Total Income */}
-        <div className="bg-white rounded-2xl shadow-sm p-8 flex-2 min-w-[270px] lg:min-w-[340px] sm:max-w-[600px] md:min-w-[220px] lg:max-w-[600px] xl:max-w-[700px]">
+        <div data-aos="fade-down" className="bg-white rounded-2xl shadow-sm p-8 flex-2 min-w-[270px] lg:min-w-[340px] sm:max-w-[600px] md:min-w-[220px] lg:max-w-[600px] xl:max-w-[700px]">
           <div className="flex justify-between items-start">
             <h2 className="text-gray-800 text-lg font-semibold">
               Total Income
@@ -41,7 +41,7 @@ const Cards = () => {
           </p>
         </div>
         {/* Total Expenses */}
-        <div className="bg-white rounded-2xl shadow-sm p-8 flex-2 min-w-[270px] lg:min-w-[320px] sm:max-w-[600px] md:min-w-[220px] lg:max-w-[600px] xl:max-w-[700px]">
+        <div data-aos="fade-down" className="bg-white rounded-2xl shadow-sm p-8 flex-2 min-w-[270px] lg:min-w-[320px] sm:max-w-[600px] md:min-w-[220px] lg:max-w-[600px] xl:max-w-[700px]">
           <div className="flex justify-between items-start">
             <h2 className="text-gray-800 text-lg font-semibold">
               Total Expenses

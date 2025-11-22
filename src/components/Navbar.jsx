@@ -17,7 +17,6 @@ const Navbar = () => {
         <div className="flex flex-col ">
           <h1 className="font-mono font-semibold">ExpenseTracker</h1>
           <span className="text-sm text-gray-400">
-            Welcome Back,{" "}
             {user?.displayName
               ? user.displayName
               : user?.email

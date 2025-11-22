@@ -38,19 +38,15 @@ const Transactions = () => {
       setError("Please select both transaction type and category.");
       return;
     }
-
     if (selected === "Select type...") {
       setError("Please select a transaction type.");
       return;
     }
-
     if (selectedCategory === "Select category...") {
       setError("Please select a category.");
       return;
     }
-
     setError("");
-
     const newTransaction = {
       transactionDescription: description,
       transactionAmount: Number(amount),
@@ -58,9 +54,7 @@ const Transactions = () => {
       transactionCategory: selectedCategory.toLowerCase(),
       transactionDate: date.toISOString().split("T")[0],
     };
-
     toast.success("Transaction added successfully!");
-
     addTransaction(newTransaction);
     setSelected("Select type...");
     setSelectedCategory("Select category...");
@@ -71,12 +65,9 @@ const Transactions = () => {
     setCategoryOpen(false);
     setOpen(false);
   };
-
   // toggle items
   const [open, setOpen] = useState(false);
-
   const [categoryOpen, setCategoryOpen] = useState(false);
-
   const handleSelect = (value) => {
     setSelected(value);
     setOpen(false);
@@ -85,18 +76,36 @@ const Transactions = () => {
     setSelectedCategory(value);
     setCategoryOpen(false);
   };
-  //   *
 
   // Modal alert state
   const [showAlert, setShowAlert] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   // Delete handler for modal
-  const handleDelete = async () => {
-    if (!transactionToDelete) return;
-    setShowAlert(false);
-    try {
+const handleDelete = async () => {
+  if (!transactionToDelete) return;
+  setShowAlert(false);
+
+  try {
+    if (transactionToDelete === "ALL") {
+      // Delete ALL transactions
+      for (const t of transactions) {
+        await deleteDoc(doc(db, "transactions", t.id));
+      }
+
+      toast.success("All transactions deleted!", {
+        icon: <FaTrashAlt color="red" className="animate-bounce" />,
+        style: {
+          borderRadius: "10px",
+          background: "#fff",
+          color: "#333",
+        },
+      });
+
+    } else {
+      // Delete only ONE transaction
       await deleteDoc(doc(db, "transactions", transactionToDelete));
+
       toast.success("Transaction deleted!", {
         icon: <FaTrashAlt color="red" className="animate-bounce" />,
         style: {
@@ -105,13 +114,13 @@ const Transactions = () => {
           color: "#333",
         },
       });
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
     }
-    setTransactionToDelete(null);
-  };
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
+  }
 
-  // Synchronize date filter with hook
+  setTransactionToDelete(null);
+};
   React.useEffect(() => {
     if (startDate && endDate) {
       setHookStartDate(startDate.toISOString().split("T")[0]);
@@ -123,9 +132,9 @@ const Transactions = () => {
   }, [startDate, endDate]);
 
   return (
-    <div className="flex gap-3 justify-between flex-col md:flex-row lg:flex-row w-full p-6">
+    <div className="flex gap-3 justify-between flex-col md:flex-row lg:flex-row w-full p-6 ">
       {/* add transactions */}
-      <div className="flex flex-col bg-white rounded-2xl min-h-screen sm:w-full p-4 lg:w-[550px] md:w-[500px]">
+      <div data-aos="fade-right" className="flex flex-col bg-white rounded-2xl min-h-screen sm:w-full p-4 lg:w-[550px] md:w-[500px]">
         <div className="flex flex-col ">
           <div className="flex gap-2 items-center">
             <span className=" rounded-full ">+</span>
@@ -143,7 +152,6 @@ const Transactions = () => {
               >
                 Transaction Type
               </label>
-
               {/* Main button */}
               <div
                 onClick={() => setOpen(!open)}
@@ -152,7 +160,6 @@ const Transactions = () => {
                 <span>{selected}</span>
                 <span className="text-gray-400">▼</span>
               </div>
-
               {/* Dropdown menu */}
               {open && (
                 <div className="absolute z-10 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -175,7 +182,6 @@ const Transactions = () => {
                 </div>
               )}
             </div>
-
             {/* amount */}
             <div className="relative my-2">
               <label
@@ -194,7 +200,6 @@ const Transactions = () => {
               />
             </div>
             {/* description */}
-
             <div className="relative my-2">
               <label
                 htmlFor="transactionType"
@@ -202,7 +207,6 @@ const Transactions = () => {
               >
                 Description
               </label>
-
               <textarea
                 type="text"
                 value={description}
@@ -211,7 +215,6 @@ const Transactions = () => {
                 className="bg-gray-100 w-full text-gray-700 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center focus:outline-none border border-gray-200 max-h-lg "
               />
             </div>
-
             {/* Category */}
             <div className="relative my-4">
               <label
@@ -220,7 +223,6 @@ const Transactions = () => {
               >
                 Category
               </label>
-
               {/* Category main button */}
               <div
                 onClick={() => setCategoryOpen(!categoryOpen)}
@@ -229,7 +231,6 @@ const Transactions = () => {
                 <span>{selectedCategory}</span>
                 <span className="text-gray-400">▼</span>
               </div>
-
               {/* Dropdown menu */}
               {categoryOpen && (
                 <div className="absolute z-10 -mt-110 w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
@@ -255,7 +256,6 @@ const Transactions = () => {
                 </div>
               )}
             </div>
-
             {/* Date */}
             <div className="relative my-2 ">
               <label
@@ -264,7 +264,6 @@ const Transactions = () => {
               >
                 Date
               </label>
-
               <DatePicker
                 selected={date}
                 onChange={(date) => setDate(date)}
@@ -273,9 +272,7 @@ const Transactions = () => {
                 wrapperClassName="w-full"
               />
             </div>
-
             {/* button */}
-
             <div className="my-2">
               <button
                 type="submit"
@@ -287,45 +284,54 @@ const Transactions = () => {
           </form>
         </div>
           </div>
-
           <button onClick={()=> setShowTransactions(!showTransaction)} className="bg-black text-white py-2 px-4 rounded-full cursor-pointer block md:hidden w-fit">
               {showTransaction ?  "Hide Transactions " : "show Transactions"}
       </button>
-
           {/* Recents */}
-
         <div
           className={`${showTransaction ? 'block' : 'hidden'} md:block flex flex-col bg-white rounded-2xl h-screen sm:w-full lg:w[600px] duration-300 `}
           data-aos="fade-left"
         >
-          <div className="flex flex-col p-4 flex-shrink-0">
-            <div className="flex gap-2 items-center">
+        <div className="flex flex-col p-4 flex-shrink-0 ">
+          <div className="flex justify-between items-center">
+            <div className="flex gap-2  flex-col ">
               <h1>Recent Transactions</h1>
-            </div>
-            <div>
               <h3 className="text-gray-400">Your latest financial activities</h3>
             </div>
+            <div className="flex items-center">
+                <FaRegTrashAlt
+                    color="red"
+                    className="cursor-pointer  "
+                    size={30}
+                    onClick={() => {
+                      setShowAlert(true);
+      setTransactionToDelete("ALL");
+                    }}
+              />
+            </div>
+          </div>
+
             {/* Date Filter Bar */}
-            <div className="flex  flex-row gap-3 items-end justify-end mb-2 px-4">
-              <div className="flex flex-col items-start sm:w-40">
+            <div className="flex  flex-row gap-3 items-end justify-end mb-2 px-2">
+              <div className="flex flex-col items-start sm:w-30">
                 <label className="text-sm text-gray-500">From</label>
                 <DatePicker
                   selected={startDate}
                   onChange={(date) => setStartDate(date)}
                   dateFormat="yyyy-MM-dd"
                   className="border px-2 py-2 border-gray-400 rounded-lg text-sm w-full"
-                  placeholderText="Start date"
+                placeholderText="Start date"
                 />
               </div>
-              <div className="flex flex-col items-start sm:w-40">
+              <div className="flex flex-col items-start sm:w-30">
                 <label className="text-sm text-gray-500">To</label>
                 <DatePicker
                   selected={endDate}
                   onChange={(date) => setEndDate(date)}
                   dateFormat="yyyy-MM-dd"
                   className="border border-gray-400 px-2 py-2 rounded-lg text-sm w-full"
-                  placeholderText="End date"
-                />
+                placeholderText="End date"
+              />
               </div>
               <button
                 className="ml-0 sm:ml-2 mt-2 sm:mt-0 px-4 py-2 text-xs rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition-all cursor-pointer"
@@ -409,16 +415,18 @@ const Transactions = () => {
       </div>
 
       {/* Custom Alert Modal */}
+    {/* Alert Modal */}
       {showAlert && (
-        <div
-          data-aos="fade-in"
-          className="fixed transition-opacity duration-300 inset-0 flex items-center justify-center z-50  bg-opacity20"
-        >
+        <div data-aos="fade-right" className="fixed inset-0 flex items-center justify-center z-50 bg-opacity20">
           <div className="bg-white/90 p-6 rounded-xl shadow-lg max-w-sm w-full">
             <h2 className="text-lg font-semibold mb-4">Delete Transaction</h2>
+
             <p className="mb-6">
-              Are you sure you want to delete this transaction?
+              {transactionToDelete === "ALL"
+                ? "This will permanently delete all your income and expense transactions. Do you want to continue?"
+                : "Are you sure you want to delete this transaction?"}
             </p>
+
             <div className="flex justify-end gap-3">
               <button
                 className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 cursor-pointer"
@@ -429,6 +437,7 @@ const Transactions = () => {
               >
                 Cancel
               </button>
+
               <button
                 className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                 onClick={handleDelete}
@@ -442,5 +451,6 @@ const Transactions = () => {
     </div>
   );
 };
+
 
 export default Transactions;

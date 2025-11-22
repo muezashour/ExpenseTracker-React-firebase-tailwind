@@ -2,16 +2,17 @@ import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
 import { FaWallet } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { UserContext } from "../context/AuthContext";
-
+import toast from "react-hot-toast";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const { googleSignIn,loading,signInWithEmail } = UserContext();
+  const { googleSignIn, loading, signInWithEmail,user } = UserContext();
+
     const signInWithGoogle = async () => {
   setError(null);
   try {
@@ -22,6 +23,8 @@ const SignIn = () => {
     } else {
 
       navigate("/ExpenseTracker");
+
+
     }
   } catch (error) {
     console.error("Google Sign-In failed:", error);
@@ -55,7 +58,20 @@ const SignIn = () => {
   }
 }
      };
-
+  useEffect(() => {
+    if (user) {
+      const userName =
+        user.displayName ||
+        (user.email ? user.email.split("@")[0] : "User");
+      toast.success(`Welcome, ${userName} 👋`, {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        pauseOnHover: true,
+        theme: "colored",
+      });
+    }
+  }, [user]);
 
 
 

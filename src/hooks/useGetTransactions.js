@@ -22,7 +22,7 @@ export const useGetTransactions = () => {
   const [endDate, setEndDate] = useState(null);
   const transactionCollectionRef = collection(db, "transactions");
   const { userID } = useGetUserInfo();
-
+  
   const getTransactions = async () => {
     let unsubscribe;
     try {
