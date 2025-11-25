@@ -10,9 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { auth } from "../config/firebaseConfig";
 
-
 const AuthContext = createContext();
-
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);

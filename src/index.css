@@ -1,12 +1,9 @@
 @import "tailwindcss";
 
-
-
 body{
   background-color: rgba(242, 242, 242, 0.604);
 
 }
-
 
 @keyframes fadeUp {
   from {
@@ -18,7 +15,6 @@ body{
     transform: translateY(0);
   }
 }
-
 .animate-fadeUp {
   animation: fadeUp 1s ease-out forwards;
 }

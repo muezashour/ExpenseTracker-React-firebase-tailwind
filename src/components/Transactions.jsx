@@ -6,17 +6,23 @@ import useAddTransaction from "../hooks/useAddTransaction";
 import { useGetTransactions } from "../hooks/useGetTransactions";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
+import { useGetUserInfo } from "../hooks/useGetUserInfo";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
 import { FaTrashAlt } from "react-icons/fa";
+import { useCurrency } from "../context/CurrencyContext";
+import { FaDollarSign } from "react-icons/fa";
 
+import { FaEuroSign } from "react-icons/fa";
+import { FaTurkishLiraSign } from "react-icons/fa6";
 
 const Transactions = () => {
+  const { currency } = useCurrency();
   // Date range filter state
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [showTransaction, setShowTransactions]=useState(false)
+  const [showTransaction, setShowTransactions] = useState(false);
   const [selected, setSelected] = useState("Select type...");
   const [selectedCategory, setSelectedCategory] =
     useState("Select category...");
@@ -26,7 +32,12 @@ const Transactions = () => {
   const [error, setError] = useState("");
   // db handling
   const { addTransaction } = useAddTransaction();
-  const { transactions, setStartDate: setHookStartDate, setEndDate: setHookEndDate } = useGetTransactions();
+  const {
+    transactions,
+    setStartDate: setHookStartDate,
+    setEndDate: setHookEndDate,
+  } = useGetTransactions();
+  const { userID } = useGetUserInfo();
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -53,6 +64,7 @@ const Transactions = () => {
       transactionType: selected.toLowerCase(),
       transactionCategory: selectedCategory.toLowerCase(),
       transactionDate: date.toISOString().split("T")[0],
+      currency,
     };
     toast.success("Transaction added successfully!");
     addTransaction(newTransaction);
@@ -82,45 +94,46 @@ const Transactions = () => {
   const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   // Delete handler for modal
-const handleDelete = async () => {
-  if (!transactionToDelete) return;
-  setShowAlert(false);
+  const handleDelete = async () => {
+    if (!transactionToDelete) return;
+    setShowAlert(false);
 
-  try {
-    if (transactionToDelete === "ALL") {
-      // Delete ALL transactions
-      for (const t of transactions) {
-        await deleteDoc(doc(db, "transactions", t.id));
+    try {
+      if (transactionToDelete === "ALL") {
+        // Delete ALL transactions
+        for (const t of transactions) {
+          await deleteDoc(doc(db, `users/${userID}/transactions/${t.id}`));
+        }
+
+        toast.success("All transactions deleted!", {
+          icon: <FaTrashAlt color="red" className="animate-bounce" />,
+          style: {
+            borderRadius: "10px",
+            background: "#fff",
+            color: "#333",
+          },
+        });
+      } else {
+        // Delete only ONE transaction
+        await deleteDoc(
+          doc(db, `users/${userID}/transactions/${transactionToDelete}`)
+        );
+
+        toast.success("Transaction deleted!", {
+          icon: <FaTrashAlt color="red" className="animate-bounce" />,
+          style: {
+            borderRadius: "10px",
+            background: "#fff",
+            color: "#333",
+          },
+        });
       }
-
-      toast.success("All transactions deleted!", {
-        icon: <FaTrashAlt color="red" className="animate-bounce" />,
-        style: {
-          borderRadius: "10px",
-          background: "#fff",
-          color: "#333",
-        },
-      });
-
-    } else {
-      // Delete only ONE transaction
-      await deleteDoc(doc(db, "transactions", transactionToDelete));
-
-      toast.success("Transaction deleted!", {
-        icon: <FaTrashAlt color="red" className="animate-bounce" />,
-        style: {
-          borderRadius: "10px",
-          background: "#fff",
-          color: "#333",
-        },
-      });
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
     }
-  } catch (error) {
-    console.error("Error deleting transaction:", error);
-  }
 
-  setTransactionToDelete(null);
-};
+    setTransactionToDelete(null);
+  };
   React.useEffect(() => {
     if (startDate && endDate) {
       setHookStartDate(startDate.toISOString().split("T")[0]);
@@ -134,7 +147,10 @@ const handleDelete = async () => {
   return (
     <div className="flex gap-3 justify-between flex-col md:flex-row lg:flex-row w-full p-6 ">
       {/* add transactions */}
-      <div data-aos="fade-right" className="flex flex-col bg-white rounded-2xl min-h-screen sm:w-full p-4 lg:w-[550px] md:w-[500px]">
+      <div
+        data-aos="fade-right"
+        className="flex flex-col bg-white rounded-2xl min-h-screen sm:w-full p-4 lg:w-[550px] md:w-[500px]"
+      >
         <div className="flex flex-col ">
           <div className="flex gap-2 items-center">
             <span className=" rounded-full ">+</span>
@@ -283,141 +299,164 @@ const handleDelete = async () => {
             </div>
           </form>
         </div>
-          </div>
-          <button onClick={()=> setShowTransactions(!showTransaction)} className="bg-black text-white py-2 px-4 rounded-full cursor-pointer block md:hidden w-fit">
-              {showTransaction ?  "Hide Transactions " : "show Transactions"}
+      </div>
+      <button
+        onClick={() => setShowTransactions(!showTransaction)}
+        className="bg-black text-white py-2 px-4 rounded-full cursor-pointer block md:hidden w-fit"
+      >
+        {showTransaction ? "Hide Transactions " : "show Transactions"}
       </button>
-          {/* Recents */}
-        <div
-          className={`${showTransaction ? 'block' : 'hidden'} md:block flex flex-col bg-white rounded-2xl h-screen sm:w-full lg:w[600px] duration-300 `}
-          data-aos="fade-left"
-        >
+      {/* Recents */}
+      <div
+        className={`${
+          showTransaction ? "block" : "hidden"
+        } md:block flex flex-col bg-white rounded-2xl h-screen sm:w-full lg:w[600px] duration-300 `}
+        data-aos="fade-left"
+      >
         <div className="flex flex-col p-4 flex-shrink-0 ">
           <div className="flex justify-between items-center">
             <div className="flex gap-2  flex-col ">
               <h1>Recent Transactions</h1>
-              <h3 className="text-gray-400">Your latest financial activities</h3>
+              <h3 className="text-gray-400">
+                Your latest financial activities
+              </h3>
             </div>
             <div className="flex items-center">
-                <FaRegTrashAlt
-                    color="red"
-                    className="cursor-pointer  "
-                    size={30}
-                    onClick={() => {
-                      setShowAlert(true);
-      setTransactionToDelete("ALL");
-                    }}
+              <FaRegTrashAlt
+                color="red"
+                className="cursor-pointer  "
+                size={30}
+                onClick={() => {
+                  setShowAlert(true);
+                  setTransactionToDelete("ALL");
+                }}
               />
             </div>
           </div>
 
-            {/* Date Filter Bar */}
-            <div className="flex  flex-row gap-3 items-end justify-end mb-2 px-2">
-              <div className="flex flex-col items-start sm:w-30">
-                <label className="text-sm text-gray-500">From</label>
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  dateFormat="yyyy-MM-dd"
-                  className="border px-2 py-2 border-gray-400 rounded-lg text-sm w-full"
+          {/* Date Filter Bar */}
+          <div className="flex  flex-row gap-3 items-end justify-end mb-2 px-2">
+            <div className="flex flex-col items-start sm:w-30">
+              <label className="text-sm text-gray-500">From</label>
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                dateFormat="yyyy-MM-dd"
+                className="border px-2 py-2 border-gray-400 rounded-lg text-sm w-full"
                 placeholderText="Start date"
-                />
-              </div>
-              <div className="flex flex-col items-start sm:w-30">
-                <label className="text-sm text-gray-500">To</label>
-                <DatePicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  dateFormat="yyyy-MM-dd"
-                  className="border border-gray-400 px-2 py-2 rounded-lg text-sm w-full"
+              />
+            </div>
+            <div className="flex flex-col items-start sm:w-30">
+              <label className="text-sm text-gray-500">To</label>
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                dateFormat="yyyy-MM-dd"
+                className="border border-gray-400 px-2 py-2 rounded-lg text-sm w-full"
                 placeholderText="End date"
               />
-              </div>
-              <button
-                className="ml-0 sm:ml-2 mt-2 sm:mt-0 px-4 py-2 text-xs rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition-all cursor-pointer"
-                onClick={() => {
-                  setStartDate(null);
-                  setEndDate(null);
-                }}
-                type="button"
-              >
-                Show All
-              </button>
             </div>
+            <button
+              className="ml-0 sm:ml-2 mt-2 sm:mt-0 px-4 py-2 text-xs rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition-all cursor-pointer"
+              onClick={() => {
+                setStartDate(null);
+                setEndDate(null);
+              }}
+              type="button"
+            >
+              Show All
+            </button>
           </div>
-          <ul className="flex flex-col mt-2 overflow-y-auto max-h-[70vh] scroll-smooth px-2 ">
-          {[...transactions].reverse().map((transaction) => {
-            const {
-              id,
-              transactionDescription,
-              transactionAmount,
-              transactionCategory,
-              transactionDate,
-              transactionType,
-            } = transaction;
-            return (
-              <li
-                key={id}
-                className="flex justify-between px-6 py-4 lg:px-10 border-b-1 border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`rounded-full p-2 ${
-                      transactionType === "income"
-                        ? "bg-green-200"
-                        : "bg-red-200"
-                    }`}
-                  >
-                    {transactionType === "expense" ? (
-                      <BsGraphDownArrow color="red" size={24} />
-                    ) : (
-                      <BsGraphUpArrow color="green" size={24} />
-                    )}
-                  </div>
-                  <div className="flex flex-col ">
-                    <div className="flex gap-2">
-                      <h2 className="font-semibold">
-                        {transactionDescription}
-                      </h2>
-                      <span className="text-xs bg-gray-200 py-1 px-2 rounded-2xl">
-                        {transactionCategory}
-                      </span>
+        </div>
+        <ul className="flex flex-col mt-2 overflow-y-auto max-h-[70vh] scroll-smooth px-2 ">
+          {[...transactions]
+            .filter((t) => (t.currency || "TL") === currency)
+            .reverse()
+            .map((transaction) => {
+              const {
+                id,
+                transactionDescription,
+                transactionAmount,
+                transactionCategory,
+                transactionDate,
+                transactionType,
+              } = transaction;
+              return (
+                <li
+                  key={id}
+                  className="flex justify-between px-6 py-4 lg:px-10 border-b-1 border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`rounded-full p-2 ${
+                        transactionType === "income"
+                          ? "bg-green-200"
+                          : "bg-red-200"
+                      }`}
+                    >
+                      {transactionType === "expense" ? (
+                        <BsGraphDownArrow color="red" size={24} />
+                      ) : (
+                        <BsGraphUpArrow color="green" size={24} />
+                      )}
                     </div>
-                    <h3 className="text-gray-400 mt-1">{transactionDate}</h3>
+                    <div className="flex flex-col ">
+                      <div className="flex gap-2">
+                        <h2 className="font-semibold">
+                          {transactionDescription}
+                        </h2>
+                        <span className="text-xs bg-gray-200 py-1 px-2 rounded-2xl">
+                          {transactionCategory}
+                        </span>
+                      </div>
+                      <h3 className="text-gray-400 mt-1">{transactionDate}</h3>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <h3
-                    className={`text-lg ${
-                      transactionType === "expense"
-                        ? "text-red-600"
-                        : "text-green-600"
-                    }`}
-                  >
-                    {transactionType === "income"
-                      ? `+$${transactionAmount}`
-                      : `-$${transactionAmount}`}
-                  </h3>
-                  <FaRegTrashAlt
-                    color="red"
-                    className="cursor-pointer  "
-                    size={20}
-                    onClick={() => {
-                      setTransactionToDelete(id);
-                      setShowAlert(true);
-                    }}
-                  />
-                </div>
-              </li>
-            );
-          })}
+                  <div className="flex items-center gap-4">
+                    <h3
+                      className={`text-lg ${
+                        transactionType === "expense"
+                          ? "text-red-600"
+                          : "text-green-600"
+                      }`}
+                    >
+                      <span className="inline-flex items-center">
+                        {transactionType === "income" ? "+" : "-"}
+                        {currency === "USD" && (
+                          <FaDollarSign size={17} className="inline-block " />
+                        )}
+                        {currency === "TL" && (
+                          <FaTurkishLiraSign size={17} className="inline-block" />
+                        )}
+                        {currency === "EURO" && (
+                          <FaEuroSign size={17} className="inline-block" />
+                        )}
+                        {transactionAmount}
+                      </span>
+                    </h3>
+                    <FaRegTrashAlt
+                      color="red"
+                      className="cursor-pointer  "
+                      size={20}
+                      onClick={() => {
+                        setTransactionToDelete(id);
+                        setShowAlert(true);
+                      }}
+                    />
+                  </div>
+                </li>
+              );
+            })}
         </ul>
       </div>
 
       {/* Custom Alert Modal */}
-    {/* Alert Modal */}
+      {/* Alert Modal */}
       {showAlert && (
-        <div data-aos="fade-right" className="fixed inset-0 flex items-center justify-center z-50 bg-opacity20">
+        <div
+          data-aos="fade-right"
+          className="fixed inset-0 flex items-center justify-center z-50 bg-opacity20"
+        >
           <div className="bg-white/90 p-6 rounded-xl shadow-lg max-w-sm w-full">
             <h2 className="text-lg font-semibold mb-4">Delete Transaction</h2>
 
@@ -451,6 +490,5 @@ const handleDelete = async () => {
     </div>
   );
 };
-
 
 export default Transactions;
