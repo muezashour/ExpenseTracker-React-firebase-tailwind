@@ -169,7 +169,7 @@ const Navbar = () => {
         <div className="relative " ref={showProf}>
           <HiMenuAlt3 onClick={() => setShowProfileOptions(!showProfileOptions)} size={22} color="gray" className=" cursor-pointer hover:scale-105 transition-transform duration-150" />
            <div
-            className={`absolute gap-2 z-10 mt-2 text-center bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden top-10 -left-21 md:-left-12 lg:-left-16 flex flex-col items-center transition-all duration-200 origin-top p-2 transform ${
+            className={`absolute gap-2 z-10 mt-2 text-center bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden top-10 -left-21 md:-left-12 lg:-left-18 flex flex-col items-center transition-all duration-200 origin-top p-2 transform ${
               showProfileOptions ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
             }`}
           >
