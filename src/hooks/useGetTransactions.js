@@ -34,7 +34,7 @@ export const useGetTransactions = () => {
       if (startDate && endDate) {
         queryTransactions = query(
           transactionCollectionRef,
-          where("transactionDate", ">=", startDate),
+          where("transactionDate", ">", startDate),
           where("transactionDate", "<=", endDate),
           orderBy("createdAt")
         );
@@ -70,7 +70,7 @@ export const useGetTransactions = () => {
   }, [userID, startDate, endDate]);
 
    useEffect(() => {
-    // Defensive: if no transactions yet, reset totals
+
     if (!transactions || transactions.length === 0) {
       setTransactionTotals({
         balance: 0.0,

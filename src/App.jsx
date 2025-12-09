@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import SignUp from "./pages/SignUp";
+import Analysis from "./pages/Analysis";
 import { Routes, Route } from 'react-router-dom'
 import SignIn from "./pages/SignIn";
 import ExpenseTracker from "./pages/ExpenseTracker";
@@ -32,7 +33,8 @@ function App() {
         <Routes>
           <Route path='/' element={<SignUp />} />
           <Route path='/SignIn' element={ <SignIn /> } />
-          <Route path='/ExpenseTracker' element={<Protected><ExpenseTracker /></Protected>} />
+            <Route path='/ExpenseTracker' element={<Protected><ExpenseTracker /></Protected>} />
+            <Route path='/Analysis' element={<Analysis />} />
           </Routes>
         </CurrencyProvider>
       </AuthContextProvider>

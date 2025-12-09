@@ -71,13 +71,10 @@ const SignUp = () => {
     <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
       <div
         data-aos="fade-down"
-        className="flex flex-col items-center gap-4 p-4"
+        className="flex flex-col items-center gap-4 p-2"
       >
         <Link className="flex gap-2 items-center" to="/">
-          <FaWallet
-            size={36}
-            className="text-blue-600 hover:scale-105 cursor-pointer"
-          />
+         <img rel="icon" type="image/png" src="/icons/apple-touch-icon.png" className="w-15 h-15" />
           <h2 className="font-serif font-bold cursor-pointer text-3xl tracking-wide">
             ExpenseTracker
           </h2>
@@ -87,7 +84,7 @@ const SignUp = () => {
           Create your account to get started
         </h1>
 
-        <div className="w-[340px] h-[510px] m-auto py-2 flex flex-col gap-4 items-center rounded-2xl shadow-lg opacity-90 mt-4 bg-white p-8">
+        <div className="w-[340px] max-h-screen m-auto py-4 flex flex-col gap-4 items-center rounded-2xl shadow-lg opacity-90 mt-4 bg-white p-8">
           <h1 className="font-serif text-center text-3xl font-bold py-6">
             Create Account
           </h1>
@@ -112,7 +109,7 @@ const SignUp = () => {
               placeholder="Password"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)} 
+              onChange={(e) => setPassword(e.target.value)}
             />
             <button
               type="submit"
