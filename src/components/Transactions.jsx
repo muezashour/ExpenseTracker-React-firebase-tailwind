@@ -492,7 +492,7 @@ const Transactions = () => {
               </button>
             </div>
           </div>
-          <ul className="flex flex-col mt-2 overflow-y-auto max-h-[85vh] scroll-smooth px-2 ">
+          <ul className="flex flex-col mt-2 overflow-y-auto  max-h-[70vh] scroll-smooth px-2 ">
             {[...transactions]
               .filter((t) => (t.currency || "TL") === currency)
               .sort(
