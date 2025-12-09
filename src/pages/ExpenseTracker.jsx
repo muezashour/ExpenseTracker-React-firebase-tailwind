@@ -9,7 +9,7 @@ const ExpenseTracker = () => {
   return (
     <>
       <Navbar />
-      <div className=" min-h-screen flex flex-col gap-4  sm:p-10 items-center">
+      <div className=" min-h-screen flex flex-col gap-4 p-1 sm:p-1 md:p-10 lg:p-10 items-center">
         {/* cards */}
         <Cards />
 

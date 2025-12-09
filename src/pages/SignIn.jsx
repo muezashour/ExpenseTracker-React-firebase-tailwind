@@ -12,7 +12,6 @@ const SignIn = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
   const { googleSignIn, loading, signInWithEmail,user } = UserContext();
-
     const signInWithGoogle = async () => {
   setError(null);
   try {
@@ -21,10 +20,7 @@ const SignIn = () => {
     if (result?._tokenResponse?.isNewUser) {
       setError("This Google account is not registered. Please sign up first.");
     } else {
-
       navigate("/ExpenseTracker");
-
-
     }
   } catch (error) {
     console.error("Google Sign-In failed:", error);
@@ -73,9 +69,6 @@ const SignIn = () => {
     }
   }, [user]);
 
-
-
-
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
@@ -87,17 +80,14 @@ const SignIn = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 p-9">
       {/* Header */}
       <div
         data-aos="fade-down"
-        className="flex flex-col items-center gap-4  p-4   "
+        className="flex flex-col items-center gap-4  p-2   "
       >
         <Link className="flex gap-2 items-center" to="/">
-          <FaWallet
-            size={36}
-            className="text-blue-600 hover:scale-105 cursor-pointer"
-          />
+          <img rel="icon" type="image/png" src="/icons/apple-touch-icon.png" className="w-15 h-15" />
           <h2
             className="font-serif font-bold
         cursor-pointer text-3xl tracking-wide "
@@ -109,7 +99,7 @@ const SignIn = () => {
           Welcome back! Sign in to your account
         </h1>
 
-        <div className="w-[340px] h-[510px] m-auto py-2 flex flex-col gap-4 items-center rounded-2xl shadow-lg opacity-90  bg-white p-8">
+        <div className="w-[340px] max-h-screen m-auto py-4 flex flex-col gap-4 items-center rounded-2xl shadow-lg opacity-90  bg-white p-8">
           <h1 className="font-serif text-center text-3xl font-bold py-6">
             Sign In
           </h1>

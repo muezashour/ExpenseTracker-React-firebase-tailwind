@@ -4,7 +4,9 @@ body{
   background-color: rgba(242, 242, 242, 0.604);
 
 }
-
+.recharts-wrapper * {
+  outline: none !important;
+}
 @keyframes fadeUp {
   from {
     opacity: 0;
