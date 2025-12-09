@@ -6,8 +6,6 @@ import { useCurrency } from "../context/CurrencyContext";
 import ReactCountryFlag from "react-country-flag";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { useNavigate } from "react-router-dom";
-import { FaBars } from "react-icons/fa";
-import { HiOutlineMenu } from "react-icons/hi";
 import { HiMenuAlt3 } from "react-icons/hi";
 const Navbar = () => {
   const { currency, setCurrency } = useCurrency();

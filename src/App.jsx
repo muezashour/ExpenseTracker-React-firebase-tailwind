@@ -34,7 +34,7 @@ function App() {
           <Route path='/' element={<SignUp />} />
           <Route path='/SignIn' element={ <SignIn /> } />
             <Route path='/ExpenseTracker' element={<Protected><ExpenseTracker /></Protected>} />
-            <Route path='/Analysis' element={<Analysis />} />
+            <Route path='/Analysis' element={<Protected> <Analysis /></Protected>} />
           </Routes>
         </CurrencyProvider>
       </AuthContextProvider>
