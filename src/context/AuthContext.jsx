@@ -6,8 +6,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  getRedirectResult,
-  signInWithRedirect
+  // getRedirectResult,
+  // signInWithRedirect
 
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -19,29 +19,23 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [authResolved, setAuthResolved] = useState(false);
-  const [processedRedirect, setProcessedRedirect] = useState(false);
+  // const [processedRedirect, setProcessedRedirect] = useState(false);
   const navigate = useNavigate();
-  const isMobilePWA = () => {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    return isStandalone && isMobile;
-  };
+  // const isMobilePWA = () => {
+  //   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  //   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  //   return isStandalone && isMobile;
+  // };
 
   const googleSignIn = async () => {
   setLoading(true);
   const provider = new GoogleAuthProvider();
   try {
-    if (isMobilePWA()) {
-
-      await signInWithRedirect(auth, provider);
-      return;
-
-    } else {
 
       const result = await signInWithPopup(auth, provider);
       setUser(result.user);
       return result.user;
-    }
+
   } catch (error) {
     console.error("Google Sign-In failed:", error);
     throw error;
@@ -120,34 +114,34 @@ export const AuthContextProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!authResolved) return;
-    if (processedRedirect) return;
+  // useEffect(() => {
+  //   if (!authResolved) return;
+  //   if (processedRedirect) return;
 
-    // If Firebase already restored a user, skip redirect handling.
-    if (user) {
-      setProcessedRedirect(true);
-      return;
-    }
+  //   // If Firebase already restored a user, skip redirect handling.
+  //   if (user) {
+  //     setProcessedRedirect(true);
+  //     return;
+  //   }
 
-    setLoading(true);
+  //   setLoading(true);
 
-    const timer = setTimeout(async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          setUser(result.user);
-        }
-      } catch (error) {
-        console.error("Redirect error:", error);
-      } finally {
-        setProcessedRedirect(true);
-        setLoading(false);
-      }
-    }, 1500); // ensure iOS has time to restore persistence
+  //   const timer = setTimeout(async () => {
+  //     try {
+  //       const result = await getRedirectResult(auth);
+  //       if (result?.user) {
+  //         setUser(result.user);
+  //       }
+  //     } catch (error) {
+  //       console.error("Redirect error:", error);
+  //     } finally {
+  //       setProcessedRedirect(true);
+  //       setLoading(false);
+  //     }
+  //   }, 1500); // ensure iOS has time to restore persistence
 
-    return () => clearTimeout(timer);
-  }, [authResolved, user, processedRedirect]);
+  //   return () => clearTimeout(timer);
+  // }, [authResolved, user, processedRedirect]);
 
   return (
     <AuthContext.Provider
