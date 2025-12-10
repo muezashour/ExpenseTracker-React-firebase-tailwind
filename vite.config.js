@@ -17,8 +17,8 @@ export default defineConfig({
   registerType: "prompt",
   manifestFilename: "manifest.webmanifest",
   workbox: {
-    skipWaiting: true,
-    clientsClaim: true
+    skipWaiting: false,
+    clientsClaim: false
   },
   includeAssets: ["favicon.ico", "apple-touch-icon.png"],
   manifest: {
