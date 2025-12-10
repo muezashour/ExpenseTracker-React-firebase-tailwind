@@ -19,6 +19,7 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [authResolved, setAuthResolved] = useState(false);
+  const [processedRedirect, setProcessedRedirect] = useState(false);
   const navigate = useNavigate();
   const isMobilePWA = () => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
@@ -33,6 +34,8 @@ export const AuthContextProvider = ({ children }) => {
     if (isMobilePWA()) {
 
       await signInWithRedirect(auth, provider);
+      return;
+
     } else {
 
       const result = await signInWithPopup(auth, provider);
@@ -114,30 +117,37 @@ export const AuthContextProvider = ({ children }) => {
       setLoading(false);
      });
 
-
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-  if (!authResolved) return;
+    if (!authResolved) return;
+    if (processedRedirect) return;
 
-  setLoading(true); // keep UI waiting during redirect resolution
-
-  const timer = setTimeout(async () => {
-    try {
-      const result = await getRedirectResult(auth);
-      if (result?.user) {
-        setUser(result.user);
-      }
-    } catch (error) {
-      console.error("Redirect error:", error);
-    } finally {
-      setLoading(false);
+    // If Firebase already restored a user, skip redirect handling.
+    if (user) {
+      setProcessedRedirect(true);
+      return;
     }
-  }, 300); // small delay ensures resolver is ready on iOS
 
-  return () => clearTimeout(timer);
-}, [authResolved]);
+    setLoading(true);
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          setUser(result.user);
+        }
+      } catch (error) {
+        console.error("Redirect error:", error);
+      } finally {
+        setProcessedRedirect(true);
+        setLoading(false);
+      }
+    }, 1500); // ensure iOS has time to restore persistence
+
+    return () => clearTimeout(timer);
+  }, [authResolved, user, processedRedirect]);
 
   return (
     <AuthContext.Provider
