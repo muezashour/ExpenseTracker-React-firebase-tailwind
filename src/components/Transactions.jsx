@@ -224,7 +224,7 @@ const Transactions = () => {
         {/* add transactions */}
         <div
           data-aos="fade-right"
-          className="flex flex-col bg-white rounded-2xl min-h-screen sm:w-full p-4 lg:w-[550px] md:w-[500px]"
+          className="flex flex-col bg-white rounded-2xl sm:w-full p-4 lg:w-[550px] md:w-[500px]"
         >
           <div className="flex flex-col ">
             <div className="flex gap-2 items-center">
@@ -375,6 +375,7 @@ const Transactions = () => {
                       "Transport",
                       "Sports",
                       "Snacks",
+                      "Tobacco",
                       "Entertainment",
                       "Groceries",
                       "Education",
@@ -430,11 +431,11 @@ const Transactions = () => {
         >
           {showTransaction ? "Hide Transactions " : "show Transactions"}
         </button>
-        {/* Recents */}
+        {/* Recents #################### */}
         <div
           className={`${
             showTransaction ? "block" : "hidden"
-          } md:block flex flex-col bg-white rounded-2xl h-[700px] sm:w-full lg:w[600px] duration-300 `}
+          } md:block flex flex-col bg-white rounded-2xl h-[700px] sm:w-full lg:w[600px] duration-300  overflow-hidden p-4`}
           data-aos="fade-left"
         >
           <div className="flex flex-col p-4 flex-shrink-0 ">
@@ -492,7 +493,7 @@ const Transactions = () => {
               </button>
             </div>
           </div>
-          <ul className="flex flex-col mt-2 overflow-y-auto  max-h-[70vh] scroll-smooth px-2 ">
+          <ul className="flex flex-col mt-2 overflow-auto  max-h-[70vh] scroll-smooth px-2 ">
             {[...transactions]
               .filter((t) => (t.currency || "TL") === currency)
               .sort(
