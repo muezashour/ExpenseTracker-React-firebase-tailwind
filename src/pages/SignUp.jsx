@@ -74,7 +74,7 @@ const SignUp = () => {
         className="flex flex-col items-center gap-4 p-2"
       >
         <Link className="flex gap-2 items-center" to="/">
-         <img rel="icon" type="image/png" src="/icons/apple-touch-icon.png" className="w-15 h-15" />
+         <img src="icons/apple-touch-icon.png" className="w-15 h-15" />
           <h2 className="font-serif font-bold cursor-pointer text-3xl tracking-wide">
             ExpenseTracker
           </h2>

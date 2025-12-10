@@ -219,7 +219,7 @@ const EditTransactionModal = ({
                   <span className="text-gray-400">▼</span>
                 </div>
 
-               {selected === "Income" ? (
+                {selected === "Income" ? (
                   <div
                     className={`absolute z-10 h-58 overflow-y-auto -mt-70 w-full bg-white rounded-xl shadow-lg border border-gray-200 transition-all duration-200 transform origin-top
         ${
@@ -264,6 +264,7 @@ const EditTransactionModal = ({
                       "Transport",
                       "Sports",
                       "Snacks",
+                      "Tobacco",
                       "Entertainment",
                       "Groceries",
                       "Education",

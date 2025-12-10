@@ -6,7 +6,9 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  
+  getRedirectResult,
+  signInWithRedirect
+
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../config/firebaseConfig";
@@ -17,30 +19,33 @@ export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [authResolved, setAuthResolved] = useState(false);
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const isMobilePWA = () => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    return isStandalone && isMobile;
+  };
 
   const googleSignIn = async () => {
-    setLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const authInfo = {
-        userID: result.user.uid,
-        name: result.user.displayName,
-        profilePhoto: result.user.photoURL,
-        isAuth: true,
-      };
-      localStorage.setItem("auth", JSON.stringify(authInfo));
-      setUser(result.user);
+  setLoading(true);
+  const provider = new GoogleAuthProvider();
+  try {
+    if (isMobilePWA()) {
 
+      await signInWithRedirect(auth, provider);
+    } else {
+
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
       return result.user;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Google Sign-In failed:", error);
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
 
   const logOut = async () => {
     setLoading(true);
@@ -92,27 +97,18 @@ const navigate = useNavigate();
     }
   };
 
+
+
   useEffect(() => {
     setLoading(true)
 
-    const storedAuth = JSON.parse(localStorage.getItem("auth"));
-  if (storedAuth?.isAuth) {
-    setUser(storedAuth);
-  }
      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
 
       if (currentUser) {
         setUser(currentUser);
-        localStorage.setItem("auth", JSON.stringify({
-          userID: currentUser.uid,
-          name: currentUser.displayName || "User",
-          profilePhoto: currentUser.photoURL || "",
-          isAuth: true,
-        }));
 
       } else {
         setUser(null);
-        localStorage.removeItem("auth");
       }
        setAuthResolved(true);
       setLoading(false);
@@ -121,6 +117,27 @@ const navigate = useNavigate();
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+  if (!authResolved) return;
+
+  setLoading(true); // keep UI waiting during redirect resolution
+
+  const timer = setTimeout(async () => {
+    try {
+      const result = await getRedirectResult(auth);
+      if (result?.user) {
+        setUser(result.user);
+      }
+    } catch (error) {
+      console.error("Redirect error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, 300); // small delay ensures resolver is ready on iOS
+
+  return () => clearTimeout(timer);
+}, [authResolved]);
 
   return (
     <AuthContext.Provider
