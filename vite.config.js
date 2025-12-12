@@ -15,15 +15,8 @@ export default defineConfig({
     tailwindcss(),
  VitePWA({
   registerType: "autoUpdate",
-  injectRegister: null,       // do NOT inject registration
-  strategies: "generateSW",   // but with no precache!
-  workbox: {
-    globPatterns: [],         // disable precache
-    runtimeCaching: [],       // disable runtime caching
-    cleanupOutdatedCaches: false,
-    skipWaiting: false,
-    clientsClaim: false,
-  },
+  injectRegister: null,
+  disable: true,
   manifest: {
     name: "Walletly",
     short_name: "Walletly",
