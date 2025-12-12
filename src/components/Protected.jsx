@@ -20,8 +20,6 @@ if (!authResolved || loading) {
     return <Navigate to="/" replace />;
   }
 
-
-
   return children;
 };
 
