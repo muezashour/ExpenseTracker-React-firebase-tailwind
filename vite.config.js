@@ -13,14 +13,17 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
-  registerType: "prompt",
-  manifestFilename: "manifest.webmanifest",
+ VitePWA({
+  registerType: "autoUpdate",
+  injectRegister: null,       // do NOT inject registration
+  strategies: "generateSW",   // but with no precache!
   workbox: {
+    globPatterns: [],         // disable precache
+    runtimeCaching: [],       // disable runtime caching
+    cleanupOutdatedCaches: false,
     skipWaiting: false,
-    clientsClaim: false
+    clientsClaim: false,
   },
-  includeAssets: ["favicon.ico", "apple-touch-icon.png"],
   manifest: {
     name: "Walletly",
     short_name: "Walletly",

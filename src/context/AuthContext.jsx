@@ -103,12 +103,15 @@ export const AuthContextProvider = ({ children }) => {
 
       if (currentUser) {
         setUser(currentUser);
-
       } else {
         setUser(null);
       }
-       setAuthResolved(true);
-      setLoading(false);
+
+      // Delay auth resolution to ensure Firebase restores session on PWA
+      setTimeout(() => {
+        setAuthResolved(true);
+        setLoading(false);
+      }, 2200);
      });
 
     return () => unsubscribe();
