@@ -1,47 +1,67 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  setPersistence,
+  indexedDBLocalPersistence,
 } from "firebase/auth";
-import { setPersistence, browserLocalPersistence } from "firebase/auth";
-
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { auth } from "../config/firebaseConfig";
 
 const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [authResolved, setAuthResolved] = useState(false);
-
+const location = useLocation();
   const navigate = useNavigate();
-  const googleSignIn = async () => {
-  setLoading(true);
-  const provider = new GoogleAuthProvider();
-  try {
-      const result = await signInWithPopup(auth, provider);
-      return result.user;
-  } catch (error) {
-    console.error("Google Sign-In failed:", error);
-    throw error;
-  } finally {
-    setLoading(false);
-  }
-};
 
-  const logOut = async () => {
+  useEffect(() => {
+    let unsubscribe;
+
+    const initAuth = async () => {
+      try {
+        await setPersistence(auth, indexedDBLocalPersistence);
+      } catch (err) {
+        console.error("Failed to set persistence:", err);
+      }
+
+      unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        setAuthResolved(true);
+        setLoading(false);
+      });
+    };
+
+    initAuth();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+ useEffect(() => {
+  if (!authResolved) return;
+
+  const publicRoutes = ["/", "/SignIn", "/SignUp"];
+
+  if (user && publicRoutes.includes(location.pathname)) {
+    navigate("/ExpenseTracker", { replace: true });
+  }
+}, [user, authResolved, location.pathname, navigate]);
+
+  const googleSignIn = async () => {
     setLoading(true);
     try {
-      await signOut(auth);
-      setUser(null);
-      navigate("/");
+      const provider = new GoogleAuthProvider();
+     await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error(error);
+      console.error("Google Sign-In failed:", error);
       throw error;
     } finally {
       setLoading(false);
@@ -56,11 +76,10 @@ export const AuthContextProvider = ({ children }) => {
         email,
         password
       );
-      setUser(userCredential.user);
       return userCredential.user;
-    } catch (err) {
-      console.error(err);
-      throw err;
+    } catch (error) {
+      console.error("Email sign-in failed:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -74,43 +93,37 @@ export const AuthContextProvider = ({ children }) => {
         email,
         password
       );
-      setUser(userCredential.user);
       return userCredential.user;
-    } catch (err) {
-      console.error(err);
-      throw err;
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-
-  useEffect(() => {
-    setPersistence(auth, browserLocalPersistence).catch((err) =>
-      console.error("Persistence error:", err)
-    );
-    setLoading(true)
-
-     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setAuthResolved(true);
+  const logOut = async () => {
+    setLoading(true);
+    try {
+      await signOut(auth);
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
       setLoading(false);
-     });
-
-    return () => unsubscribe();
-  }, []);
-
+    }
+  };
 
   return (
     <AuthContext.Provider
       value={{
-        googleSignIn,
-        logOut,
         user,
         loading,
         authResolved,
+        googleSignIn,
         signInWithEmail,
         registerWithEmail,
+        logOut,
       }}
     >
       {children}

@@ -89,12 +89,12 @@ const EditTransactionModal = ({
   return (
     <div
       data-aos="fade-in"
-      className="fixed inset-0 flex items-center justify-center z-50 bg-black/20"
+      className="fixed inset-0 flex items-center justify-center z-50 "
     >
       <div
         ref={refEdit}
         className={`flex flex-col bg-white rounded-2xl h-[500px] overflow-x-auto sm:w-[350px] p-4 lg:w-[450px] md:w-[400px]
-  transform transition-all duration-200
+  transform transition-all duration-200 shadow-2xl
   ${show ? "scale-105 opacity-100" : "scale-95 opacity-0"}
 `}
       >
@@ -307,7 +307,7 @@ const EditTransactionModal = ({
             <div className="my-2">
               <button
                 type="submit"
-                className="w-full bg-black text-white p-2 rounded-2xl cursor-pointer hover:bg-black/60"
+                className="w-full bg-blue-500 text-white p-2 rounded-2xl hover:bg-blue-600/60 cursor-pointer transition-colors duration-150 font-semibold"
               >
                 Edit Transaction
               </button>

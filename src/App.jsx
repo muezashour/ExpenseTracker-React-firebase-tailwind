@@ -12,9 +12,6 @@ import { CurrencyProvider } from "./context/CurrencyContext";
 import Protected from "./components/Protected";
 
 
-
-
-
 function App() {
   useEffect(() => {
     AOS.init({
@@ -22,9 +19,6 @@ function App() {
       once: true,
     });
   }, []);
-
-
-
 
   return (
     <div>

@@ -148,8 +148,6 @@ const Navbar = () => {
           </div>
         </div>
         <div
-
-
           className="bg-gray-300/50 w-10 h-10 flex items-center justify-center rounded-full font-semibold text-gray-600  cursor-pointer "
         >
           {user?.displayName
@@ -164,16 +162,16 @@ const Navbar = () => {
 
 
         </div>
-        <div className="relative " ref={showProf}>
+        <div className="flex items-center justify-center"  ref={showProf}>
           <HiMenuAlt3 onClick={() => setShowProfileOptions(!showProfileOptions)} size={22} color="gray" className=" cursor-pointer hover:scale-105 transition-transform duration-150" />
            <div
-            className={`absolute gap-2 z-10 mt-2 text-center bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden top-10 -left-21 md:-left-12 lg:-left-18 flex flex-col items-center transition-all duration-200 origin-top p-2 transform ${
+            className={`absolute  w-full  gap-2 z-10 mt-2  text-center bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden top-17 left-0   flex flex-col items-center justify-center transition-all duration-200 origin-top p-2 transform ${
               showProfileOptions ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
             }`}
           >
             <div
               onClick={() => navigate("/Analysis")}
-              className="text-gray-500 w-full border-b border-gray-200 text-sm font-semibold text-center  font-mono flex items-center px-4 py-2 hover:bg-green-50  cursor-pointer transition-colors duration-150"
+              className="text-gray-500 w-full border-b rounded-lg border-gray-200 text-sm font-semibold font-mono flex items-center justify-center text-center py-2 hover:bg-green-50 cursor-pointer transition-colors duration-150"
             >
               Analysis
             </div>
@@ -190,10 +188,6 @@ const Navbar = () => {
           </div>
 
         </div>
-
-
-
-
 
       </div>
       {showAlert && (

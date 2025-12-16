@@ -3,20 +3,20 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-
-
 export default defineConfig({
   server: {
     host: "0.0.0.0"
   },
-
   plugins: [
     react(),
     tailwindcss(),
- VitePWA({
+    VitePWA({
+   useCredentials: undefined,
   registerType: "autoUpdate",
-  injectRegister: null,
-  disable: true,
+  injectRegister: false,
+  devOptions: {
+    enabled: true
+  },
   manifest: {
     name: "Walletly",
     short_name: "Walletly",

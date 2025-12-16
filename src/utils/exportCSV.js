@@ -30,7 +30,12 @@ export const exportAnalysisCSV = (
   }
 
   if (type === "Weekly") {
-    return exportWeekly(transactions, currency);
+    const result = exportWeekly(transactions, currency);
+    downloadCSV(
+      result.rows,
+      `Weekly_${new Date().toISOString().slice(0, 10)}_${currency}.csv`
+    );
+    return result;
   }
 };
 
@@ -139,5 +144,17 @@ const exportWeekly = (transactions, currency) => {
 
   rows.push(["Total", totalIncome, totalExpense]);
 
-  downloadCSV(rows, `Weekly_${new Date().toISOString().slice(0, 10)}_${currency}.csv`);
+  return {
+    rows,
+    totalIncome,
+    totalExpense,
+  };
+};
+
+export const getWeeklyTotal = (transactions, currency) => {
+  const result = exportWeekly(transactions, currency);
+  return {
+    totalIncome: result.totalIncome,
+    totalExpense: result.totalExpense,
+  };
 };

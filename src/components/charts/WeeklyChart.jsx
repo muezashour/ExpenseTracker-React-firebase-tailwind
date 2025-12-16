@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getWeeklyTotals } from "../../utils/getWeeklyTotals";
+import { getWeeklyTotal } from "../../utils/exportCSV";
+
 import {
   AreaChart,
   XAxis,
@@ -13,6 +15,7 @@ import {
 
 const WeeklyChart = ({ transactions, type, currency }) => {
   const [chartData, setChartData] = useState([]);
+    const { totalIncome, totalExpense } = getWeeklyTotal(transactions, currency);
 
   useEffect(() => {
     const weeklyTotals = getWeeklyTotals(transactions, type, currency);
@@ -63,8 +66,22 @@ const WeeklyChart = ({ transactions, type, currency }) => {
   className="h-48 w-full   min-h-[320px] md:min-h-[320px] lg:min-h-[390px] bg-white p-4 md:p-3 lg:p-8 rounded-xl shadow-sm focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 active:ring-0"
   tabIndex={-1}
   style={{ outline: "none" }}
->
-            <h1 className="text-lg font-semibold mb-2 capitalize text-gray-500">This Week {type} Chart</h1>
+    >
+      <div className="flex justify-between items-center mb-2">
+        <h1 className="text-md md:text-lg lg:text-lg font-semibold mb-2 capitalize text-gray-500">This Week {type} Chart</h1>
+
+        <h2
+          className={`text-md font-medium mb-2 font-mono ${
+            type === "income" ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {type === "income"
+            ? `Total : ${totalIncome} ${currency === "TL" ? "₺" : currency === "USD" ? "$" : currency === "EUR" ? "€" : ""}`
+            : `Total : ${totalExpense} ${currency === "TL" ? "₺" : currency === "USD" ? "$" : currency === "EUR" ? "€" : ""}`}
+        </h2>
+
+      </div>
+
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={chartData}
@@ -73,7 +90,7 @@ const WeeklyChart = ({ transactions, type, currency }) => {
       ? { top: 0, right: 5, left: -20, bottom: 25 } // phone margins
       : { top: 6, right: 10, left: -15, bottom: 22 } // your existing margins
     } className="min-h-[300px]"
-                
+
         >
           <CartesianGrid strokeDasharray="2 2" stroke="#f0f0f0" />
 
