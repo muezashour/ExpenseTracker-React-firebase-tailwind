@@ -1,27 +1,23 @@
 import { FcGoogle } from "react-icons/fc";
-import { Link } from "react-router-dom";
 import { FaWallet } from "react-icons/fa";
+import { MdWavingHand } from "react-icons/md";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState,useEffect } from "react";
 import { UserContext } from "../context/AuthContext";
 import toast from "react-hot-toast";
+
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-  const { googleSignIn, loading, signInWithEmail,user } = UserContext();
+  const { googleSignIn, loading, signInWithEmail, user } = UserContext();
     const signInWithGoogle = async () => {
   setError(null);
   try {
-    const result = await googleSignIn();
-
-    if (result?._tokenResponse?.isNewUser) {
-      setError("This Google account is not registered. Please sign up first.");
-    } else {
-      navigate("/ExpenseTracker");
-    }
+    await googleSignIn();
   } catch (error) {
     console.error("Google Sign-In failed:", error);
     setError("Google Sign-In failed. Please try again.");
@@ -31,15 +27,12 @@ const SignIn = () => {
     e.preventDefault();
     setError(null);
 
-
     if (!email || !password) {
       setError("Please provide both email and password.");
       return;
     }
     try {
         await signInWithEmail(email, password);
-    navigate("/ExpenseTracker");
-
     }  catch (err) {
   console.error("Sign-in error:", err);
 
@@ -55,16 +48,32 @@ const SignIn = () => {
 }
      };
   useEffect(() => {
-    if (user) {
-      const userName =
-        user.displayName ||
-        (user.email ? user.email.split("@")[0] : "User");
+    if (!user) return;
+
+    const userName =
+      user.displayName ||
+      (user.email ? user.email.split("@")[0] : "User");
+
+    const isMobile = window.innerWidth < 640;
+
+    if (isMobile) {
+
+      toast.success("", {
+        icon: (
+          <MdWavingHand size={106} className="text-blue-600 animate-bounce" />
+        ),
+        position: "center",
+        duration: 1200,
+        style: {
+          background: "transparent",
+          boxShadow: "none",
+          padding: 0,
+        },
+      });
+    } else {
       toast.success(`Welcome, ${userName} 👋`, {
         position: "bottom-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        pauseOnHover: true,
-        theme: "colored",
+        duration: 3000,
       });
     }
   }, [user]);
@@ -72,8 +81,13 @@ const SignIn = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <h1 className="text-3xl font-bold font-serif animate-pulse">
-          Loading<span className="animate-pulse">...</span>
+         <h1 className="text-3xl font-bold font-serif animate-pulse">
+          {/* <FaSpinner className="text-6xl text-gray-400 animate-spin " /> */}
+          <img
+            src="/icons/last192.png"
+            alt="app icon"
+            className="w-40 h-40 animate-[pulse_1s_ease-in-out_infinite] "
+          />
         </h1>
       </div>
     );
@@ -92,7 +106,7 @@ const SignIn = () => {
             className="font-serif font-bold
         cursor-pointer text-3xl tracking-wide "
           >
-            ExpenseTracker
+            Walletly
           </h2>
         </Link>
         <h1 className=" duration-300 transform transition-all hover:scale-105 ">
@@ -126,6 +140,7 @@ const SignIn = () => {
             <button
               type="submit"
               className="py-3 px-7 cursor-pointer my-5 rounded-full bg-blue-600 text-white hover:bg-blue-500 duration-300"
+              disabled={loading}
             >
               Sign In
                       </button>
@@ -153,7 +168,7 @@ const SignIn = () => {
           </div>
 
           <div className="flex justify-between gap-4">
-            <button onClick={signInWithGoogle} className=" cursor-pointer">
+            <button onClick={signInWithGoogle} className=" cursor-pointer" disabled={loading}>
               <div className="p-4 bg-white rounded-full flex items-center justify-center shadow-lg">
                 <FcGoogle size={35} />
               </div>

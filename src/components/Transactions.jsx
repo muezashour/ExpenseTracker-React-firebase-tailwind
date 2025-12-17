@@ -20,16 +20,21 @@ import { useRef } from "react";
 import { FaEdit } from "react-icons/fa";
 import { useUpdateTransaction } from "../hooks/useUpdateTransaction";
 import EditTransactionModal from "./EditTransactionModal";
-
+import AddTransactionModel from "./AddTransactionModel";
+import AddTransactionMobile from "./AddTransactionMobile";
+import { FaPlusCircle } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
+// Helper function to detect mobile devices
+const isMobile = () => window.innerWidth < 768;
 const Transactions = () => {
   const { currency } = useCurrency();
+
   const ref = useRef(null);
   const refCategory = useRef(null);
   const refEdit = useRef(null);
   // Date range filter state
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [showTransaction, setShowTransactions] = useState(false);
   const [selected, setSelected] = useState("Select type...");
   const [selectedCategory, setSelectedCategory] =
     useState("Select category...");
@@ -51,6 +56,9 @@ const Transactions = () => {
   const [editError, setEditError] = useState("");
   const { userID } = useGetUserInfo();
   const { updateTransaction } = useUpdateTransaction(userID);
+
+  //Transaction eAdd  handler on small devices
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const handleEdit = async (values) => {
     if (!transactionToEdit) return;
@@ -88,14 +96,23 @@ const Transactions = () => {
       setTransactionToEdit(null);
 
       // Show toast after closing modal
-      toast.success("Transaction updated successfully!", {
-        icon: <FaEdit color="blue" className="animate-bounce" />,
-        style: {
-          borderRadius: "11px",
-          background: "#fff",
-          color: "#333",
-        },
-      });
+      if (isMobile()) {
+        toast.success("", {
+          icon: <FaEdit size={100} className="text-blue-500 animate-bounce" />,
+          position: "center",
+          duration: 1200,
+          style: {
+            background: "transparent",
+            boxShadow: "none",
+            padding: 0,
+          },
+        });
+      } else {
+        toast.success("Transaction updated successfully", {
+          position: "bottom-right",
+          icon: <FaEdit className="text-blue-500" />,
+        });
+      }
     }
   };
 
@@ -127,7 +144,25 @@ const Transactions = () => {
       transactionDate: date.toISOString().split("T")[0],
       currency,
     };
-    toast.success("Transaction added successfully!");
+    if (isMobile()) {
+      toast.success("", {
+        icon: (
+          <FaCheckCircle size={100} className="text-green-500 animate-bounce" />
+        ),
+        position: "center",
+        duration: 1200,
+        style: {
+          background: "transparent",
+          boxShadow: "none",
+          padding: 0,
+        },
+      });
+    } else {
+      toast.success("Transaction added successfully", {
+        position: "bottom-right",
+        icon: <FaCheckCircle className="text-green-500" />,
+      });
+    }
     addTransaction(newTransaction);
     setSelected("Select type...");
     setSelectedCategory("Select category...");
@@ -149,7 +184,6 @@ const Transactions = () => {
     setSelectedCategory(value);
     setCategoryOpen(false);
   };
-
   // Modal alert state
   const [showAlert, setShowAlert] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState(null);
@@ -169,28 +203,50 @@ const Transactions = () => {
           await deleteDoc(doc(db, `users/${userID}/transactions/${t.id}`));
         }
 
-        toast.success("All transactions deleted!", {
-          icon: <FaTrashAlt color="red" className="animate-bounce" />,
-          style: {
-            borderRadius: "10px",
-            background: "#fff",
-            color: "#333",
-          },
-        });
+        if (isMobile()) {
+          toast.success("", {
+            icon: (
+              <FaTrashAlt size={100} className="text-red-500 animate-bounce" />
+            ),
+            position: "center",
+            duration: 1200,
+            style: {
+              background: "transparent",
+              boxShadow: "none",
+              padding: 0,
+            },
+          });
+        } else {
+          toast.success("Transaction deleted successfully", {
+            position: "bottom-right",
+            icon: <FaTrashAlt className="text-red-500" />,
+          });
+        }
       } else {
         // Delete only ONE transaction
         await deleteDoc(
           doc(db, `users/${userID}/transactions/${transactionToDelete}`)
         );
 
-        toast.success("Transaction deleted!", {
-          icon: <FaTrashAlt color="red" className="animate-bounce" />,
-          style: {
-            borderRadius: "10px",
-            background: "#fff",
-            color: "#333",
-          },
-        });
+        if (isMobile()) {
+          toast.success("", {
+            icon: (
+              <FaTrashAlt size={80} className="text-red-500 animate-bounce" />
+            ),
+            position: "center",
+            duration: 1200,
+            style: {
+              background: "transparent",
+              boxShadow: "none",
+              padding: 0,
+            },
+          });
+        } else {
+          toast.success("Transaction deleted successfully", {
+            position: "bottom-right",
+            icon: <FaTrashAlt className="text-red-500" />,
+          });
+        }
       }
     } catch (error) {
       console.error("Error deleting transaction:", error);
@@ -217,226 +273,49 @@ const Transactions = () => {
   useClickOutside(ref, () => setOpen(false));
   useClickOutside(refCategory, () => setCategoryOpen(false));
   useClickOutside(refEdit, () => setShowEditModal(false));
-
   return (
     <>
-      <div className="flex gap-3 justify-between flex-col md:flex-row lg:flex-row w-full p-1 ">
+      <div className="flex gap-3 justify-between flex-col md:flex-row lg:flex-row w-full p-5 ">
         {/* add transactions */}
+        <button
+          // data-aos="fade-up"
+          onClick={() => setShowAddModal(true)}
+          className="md:hidden z-10 fixed bottom-7 cursor-pointer text-2xl right-7 bg-blue-500 text-white px-4 py-4 rounded-full shadow-lg shadow-blue-400/40 hover:bg-blue-600 transition-all duration-300 ease-in-out"
+        >
+          <FaPlusCircle size={24} />
+        </button>
+
         <div
           data-aos="fade-right"
-          className="flex flex-col bg-white rounded-2xl sm:w-full p-4 lg:w-[550px] md:w-[500px]"
+          className="hidden md:flex lg:w-[450px] md:w-[350px]"
         >
-          <div className="flex flex-col ">
-            <div className="flex gap-2 items-center">
-              <span className=" rounded-full ">+</span>
-              <h1>Add Transaction</h1>
-            </div>
-            <div>
-              <h3 className="text-gray-400">Record a new income or expense</h3>
-            </div>
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-            <form className="flex flex-col p-2 my-2 " onSubmit={onSubmit}>
-              <div className="relative my-4" ref={ref}>
-                <label
-                  htmlFor="transactionType"
-                  className="text-gray-800 font-semibold mb-2 block"
-                >
-                  Transaction Type
-                </label>
-                {/* Main button */}
-                <div
-                  onClick={() => setOpen(!open)}
-                  className="bg-gray-100 text-gray-800 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center focus:outline-none border border-gray-200"
-                >
-                  <span>{selected}</span>
-                  <span className="text-gray-400">▼</span>
-                </div>
-                {/* Dropdown menu */}
-                <div
-                  className={`absolute z-10 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-200 transform origin-top ${
-                    open
-                      ? "scale-100 opacity-100 pointer-events-auto"
-                      : "scale-95 opacity-0 pointer-events-none"
-                  }`}
-                >
-                  <div
-                    onClick={() => handleSelect("Income")}
-                    id="Income"
-                    value="Income"
-                    className="px-4 py-3 hover:bg-green-50 text-gray-700 cursor-pointer transition-colors"
-                  >
-                    Income
-                  </div>
-                  <div
-                    onClick={() => handleSelect("Expense")}
-                    id="Expense"
-                    value="Expense"
-                    className="px-4 py-3 hover:bg-red-50 text-gray-700 cursor-pointer transition-colors"
-                  >
-                    Expense
-                  </div>
-                </div>
-              </div>
-              {/* amount */}
-              <div className="relative my-2">
-                <label
-                  htmlFor="transactionType"
-                  className="text-gray-800 font-semibold mb-2 block"
-                >
-                  amount ($)
-                </label>
-                <input
-                  required
-                  type="text"
-                  placeholder="0"
-                  value={amount}
-                  onChange={(e) => {
-                    const cleaned = e.target.value.replace(/\D+/g, "").trim();
-                    setAmount(cleaned);
-                  }}
-                  className="bg-gray-100 w-full text-gray-700 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center focus:outline-none border border-gray-200"
-                />
-              </div>
-              {/* description */}
-              <div className="relative my-2">
-                <label
-                  htmlFor="transactionType"
-                  className="text-gray-800 font-semibold mb-2 block"
-                >
-                  Description
-                </label>
-                <textarea
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter Transaction Description"
-                  className="bg-gray-100 w-full text-gray-700 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center focus:outline-none border border-gray-200 max-h-lg "
-                />
-              </div>
-              {/* Category */}
-              <div className="relative my-4" ref={refCategory}>
-                <label
-                  htmlFor="category"
-                  className="text-gray-800 font-semibold mb-2 block"
-                >
-                  Category
-                </label>
-                {/* Category main button */}
-                <div
-                  onClick={() => setCategoryOpen(!categoryOpen)}
-                  className="bg-gray-100 text-gray-800 rounded-xl px-4 py-3 cursor-pointer flex justify-between items-center focus:outline-none border border-gray-200"
-                >
-                  <span>{selectedCategory}</span>
-                  <span className="text-gray-400">▼</span>
-                </div>
-                {/* Dropdown menu */}
-                {selected === "Income" ? (
-                  <div
-                    className={`absolute z-10 h-58 overflow-y-auto -mt-70 w-full bg-white rounded-xl shadow-lg border border-gray-200 transition-all duration-200 transform origin-top
-        ${
-          categoryOpen
-            ? "scale-100 opacity-100 pointer-events-auto"
-            : "scale-95 opacity-0 pointer-events-none"
-        }
-      `}
-                  >
-                    {[
-                      "Salary",
-                      "Freelance",
-                      "Business",
-                      "Investments",
-                      "Gifts",
-                      "Refunds",
-                      "Bonus",
-                      "Others",
-                    ].map((cat) => (
-                      <div
-                        key={cat}
-                        onClick={() => handleCategorySelect(cat)}
-                        className="px-4 py-3 hover:bg-blue-50 text-gray-700 cursor-pointer transition-colors"
-                      >
-                        {cat}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div
-                    className={`absolute z-10 h-58 overflow-y-auto -mt-70 w-full bg-white rounded-xl shadow-lg border border-gray-200 transition-all duration-200 transform origin-top
-        ${
-          categoryOpen
-            ? "scale-100 opacity-100 pointer-events-auto"
-            : "scale-95 opacity-0 pointer-events-none"
-        }
-      `}
-                  >
-                    {[
-                      "Food",
-                      "Rent",
-                      "Transport",
-                      "Sports",
-                      "Snacks",
-                      "Tobacco",
-                      "Entertainment",
-                      "Groceries",
-                      "Education",
-                      "Shopping",
-                      "Bills",
-                      "Health",
-                      "Gifts",
-                      "Missing",
-                      "Others",
-                    ].map((cat) => (
-                      <div
-                        key={cat}
-                        onClick={() => handleCategorySelect(cat)}
-                        className="px-4 py-3 hover:bg-blue-50 text-gray-700 cursor-pointer transition-colors"
-                      >
-                        {cat}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              {/* Date */}
-              <div className="relative my-2 ">
-                <label
-                  htmlFor="transactionDate"
-                  className="text-gray-800 font-semibold mb-2 block"
-                >
-                  Date
-                </label>
-                <DatePicker
-                  selected={date}
-                  onChange={(date) => setDate(date)}
-                  className="bg-gray-100 w-full text-gray-800 rounded-xl px-4 py-3 focus:outline-none border  border-gray-200"
-                  dateFormat="yyyy-MM-dd"
-                  wrapperClassName="w-full"
-                />
-              </div>
-              {/* button */}
-              <div className="my-2">
-                <button
-                  type="submit"
-                  className="w-full bg-black text-white p-2 rounded-2xl cursor-pointer hover:bg-black/60"
-                >
-                  Add Transaction
-                </button>
-              </div>
-            </form>
-          </div>
+          <AddTransactionModel
+            error={error}
+            onSubmit={onSubmit}
+            selected={selected}
+            setOpen={setOpen}
+            open={open}
+            handleSelect={handleSelect}
+            amount={amount}
+            setAmount={setAmount}
+            description={description}
+            setDescription={setDescription}
+            selectedCategory={selectedCategory}
+            setCategoryOpen={setCategoryOpen}
+            categoryOpen={categoryOpen}
+            handleCategorySelect={handleCategorySelect}
+            date={date}
+            setDate={setDate}
+            refType={ref}
+            refCategory={refCategory}
+          />
         </div>
-        <button
-          onClick={() => setShowTransactions(!showTransaction)}
-          className="bg-black text-white py-2 px-4 rounded-full cursor-pointer block md:hidden w-fit"
-        >
-          {showTransaction ? "Hide Transactions " : "show Transactions"}
-        </button>
+
         {/* Recents #################### */}
         <div
-          className={`${
-            showTransaction ? "block" : "hidden"
-          } md:block flex flex-col bg-white rounded-2xl h-[700px] sm:w-full lg:w[600px] duration-300  overflow-hidden p-4`}
           data-aos="fade-left"
+          className={`
+   flex flex-col bg-white rounded-2xl h-[490px] md:h-[700px] lg:h-[700px] sm:w-full lg:w[600px] duration-300  overflow-hidden p-1`}
         >
           <div className="flex flex-col p-4 flex-shrink-0 ">
             <div className="flex justify-between items-center">
@@ -540,7 +419,7 @@ const Transactions = () => {
                     )}
                     <li
                       key={id}
-                      className="flex justify-between px-6 py-4 lg:px-10 border-b-1 border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
+                      className="flex justify-between px-1 py-4 md:px-10 lg:px-10 border-b-1 border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
                     >
                       <div className="flex items-center gap-3">
                         <div
@@ -557,15 +436,15 @@ const Transactions = () => {
                           )}
                         </div>
                         <div className="flex flex-col ">
-                          <div className="flex gap-2">
-                            <h2 className="font-semibold">
+                          <div className="flex gap-2 flex-col-reverse sm:flex-row sm:items-center ">
+                            <h2 className="font-semibold text-sm lg:text-md md:text-md">
                               {transactionDescription}
                             </h2>
-                            <span className="text-xs bg-gray-200 py-1 px-2 rounded-2xl">
+                            <span className="text-xs bg-gray-200 py-1 px-2 rounded-2xl w-fit">
                               {transactionCategory}
                             </span>
                           </div>
-                          <h3 className="text-gray-400 mt-1">
+                          <h3 className="text-gray-400 mt-1 text-sm lg:text-md md:text-md">
                             {transactionDate}
                           </h3>
                         </div>
@@ -632,7 +511,6 @@ const Transactions = () => {
           >
             <div className="bg-white/90 p-6 rounded-xl shadow-lg max-w-sm w-[300px] sm:w-96 md:w-96 lg:w-96">
               <h2 className="text-lg font-semibold mb-4">Delete Transaction</h2>
-
               <p className="mb-6">
                 {transactionToDelete === "ALL"
                   ? "This will permanently delete all your income and expense transactions. Do you want to continue?"
@@ -660,7 +538,6 @@ const Transactions = () => {
           </div>
         )}
       </div>
-
       <EditTransactionModal
         show={showEditModal}
         onClose={() => setShowEditModal(false)}
@@ -672,6 +549,34 @@ const Transactions = () => {
           handleEdit(updatedValues);
         }}
       />
+      <AddTransactionMobile
+        show={showAddModal}
+        onClose={() => setShowAddModal(false)}
+      >
+        <AddTransactionModel
+          error={error}
+          onSubmit={(e) => {
+            onSubmit(e);
+            setShowAddModal(false);
+          }}
+          selected={selected}
+          setOpen={setOpen}
+          open={open}
+          handleSelect={handleSelect}
+          amount={amount}
+          setAmount={setAmount}
+          description={description}
+          setDescription={setDescription}
+          selectedCategory={selectedCategory}
+          setCategoryOpen={setCategoryOpen}
+          categoryOpen={categoryOpen}
+          handleCategorySelect={handleCategorySelect}
+          date={date}
+          setDate={setDate}
+          refType={ref}
+          refCategory={refCategory}
+        />
+      </AddTransactionMobile>
     </>
   );
 };

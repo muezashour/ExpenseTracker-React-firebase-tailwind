@@ -17,6 +17,9 @@ import { FaSpinner } from "react-icons/fa";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { exportAnalysisCSV } from "../utils/exportCSV";
 
+
+
+
 const Analysis = () => {
   const ref = useRef(null);
   const monthRef = useRef(null);
@@ -24,6 +27,7 @@ const Analysis = () => {
   const currencyRef = useRef(null);
   const { transactionTotals, transactions } = useGetTransactions();
   const { loading } = UserContext();
+
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -591,3 +595,6 @@ const Analysis = () => {
 };
 
 export default Analysis;
+
+
+

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaWallet } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { UserContext } from "../context/AuthContext";
 
@@ -13,21 +12,14 @@ const SignUp = () => {
   const { googleSignIn, loading, registerWithEmail } = UserContext();
 
   const signInWithGoogle = async () => {
-  try {
-    const result = await googleSignIn();
-
-
-    if (result?._tokenResponse?.isNewUser) {
-      navigate("/ExpenseTracker");
-    } else {
-      setError("This Google account is already registered. Please sign in instead.");
+    setError(null);
+    try {
+      await googleSignIn();
+    } catch (error) {
+      console.error("Google Sign-In failed:", error);
+      setError("Google Sign-In failed. Please try again.");
     }
-
-  } catch (error) {
-    console.error("Google Sign-In failed:", error);
-    setError("Google Sign-In failed. Please try again.");
-  }
-};
+  };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -40,13 +32,12 @@ const SignUp = () => {
     }
     try {
       await registerWithEmail(email, password);
-      navigate("/ExpenseTracker");
     } catch (err) {
       console.error(err);
-      setError(err?.message || "Email sign-in failed");
+      setError(err?.message || "Email sign-up failed");
 
       if (err.code === "auth/email-already-in-use") {
-        setError("This email is already registered. ");
+        setError("This email is already registered.");
       } else if (err.code === "auth/invalid-email") {
         setError("Please enter a valid email address.");
       } else if (err.code === "auth/weak-password") {
@@ -60,8 +51,13 @@ const SignUp = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <h1 className="text-3xl font-bold font-serif animate-pulse">
-          Loading<span className="animate-pulse">...</span>
+         <h1 className="text-3xl font-bold font-serif animate-pulse">
+          {/* <FaSpinner className="text-6xl text-gray-400 animate-spin " /> */}
+          <img
+            src="/icons/last192.png"
+            alt="app icon"
+            className="w-40 h-40 animate-[pulse_1s_ease-in-out_infinite] "
+          />
         </h1>
       </div>
     );
@@ -76,7 +72,7 @@ const SignUp = () => {
         <Link className="flex gap-2 items-center" to="/">
          <img src="icons/apple-touch-icon.png" className="w-15 h-15" />
           <h2 className="font-serif font-bold cursor-pointer text-3xl tracking-wide">
-            ExpenseTracker
+            Walletly
           </h2>
         </Link>
 
@@ -114,6 +110,7 @@ const SignUp = () => {
             <button
               type="submit"
               className="py-3 px-7 my-5 cursor-pointer rounded-full bg-blue-600 text-white hover:bg-blue-500 duration-300"
+              disabled={loading}
             >
               Sign Up
             </button>
@@ -142,7 +139,7 @@ const SignUp = () => {
           </div>
 
           <div className="flex justify-between gap-4">
-            <button onClick={signInWithGoogle} className="cursor-pointer">
+            <button onClick={signInWithGoogle} className="cursor-pointer" disabled={loading}>
               <div className="p-4 bg-white rounded-full flex items-center justify-center shadow-lg">
                 <FcGoogle size={35} />
               </div>
