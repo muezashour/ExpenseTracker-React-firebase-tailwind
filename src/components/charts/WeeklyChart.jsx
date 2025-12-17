@@ -68,10 +68,10 @@ const WeeklyChart = ({ transactions, type, currency }) => {
   style={{ outline: "none" }}
     >
       <div className="flex justify-between items-center mb-2">
-        <h1 className="text-md md:text-lg lg:text-lg font-semibold mb-2 capitalize text-gray-500">This Week {type} Chart</h1>
+        <h1 className="text-xs md:text-lg lg:text-lg font-semibold mb-2 capitalize text-gray-500">This Week {type} Chart</h1>
 
         <h2
-          className={`text-md font-medium mb-2 font-mono ${
+          className={`text-xs lg:text-md md:text-md font-medium mb-2 font-mono ${
             type === "income" ? "text-green-600" : "text-red-600"
           }`}
         >
