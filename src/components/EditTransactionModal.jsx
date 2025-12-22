@@ -10,7 +10,7 @@ const EditTransactionModal = ({
   onSubmit,
   transaction,
   currency,
-  editError,
+
 }) => {
   const refType = useRef(null);
   const refCategory = useRef(null);
@@ -24,12 +24,46 @@ const EditTransactionModal = ({
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
-
+  const [error, setError] = useState("");
   const handleSelect = (value) => {
     setSelected(value);
     setOpen(false);
   };
+  const handleError = () => {
+    if (!transaction) {
+      setError("");
+      return false;
+    }
 
+    const sameDescription =
+      description === transaction.transactionDescription;
+
+    const sameAmount =
+      Number(amount) === Number(transaction.transactionAmount);
+
+    const sameType =
+      selected.toLowerCase() === transaction.transactionType;
+
+    const sameCategory =
+      selectedCategory.toLowerCase() === transaction.transactionCategory;
+
+    const sameDate =
+      date.toISOString().split("T")[0] === transaction.transactionDate;
+
+    if (
+      sameDescription &&
+      sameAmount &&
+      sameType &&
+      sameCategory &&
+      sameDate
+    ) {
+      setError("No changes detected");
+      return true;
+    }
+
+    setError("");
+    return false;
+  };
   const handleCategorySelect = (cat) => {
     setSelectedCategory(cat);
     setCategoryOpen(false);
@@ -76,6 +110,8 @@ const EditTransactionModal = ({
   if (!show && !isVisible) return null;
 
   const handleSubmit = () => {
+    if (handleError()) return;
+
     onSubmit({
       selected,
       selectedCategory,
@@ -100,20 +136,23 @@ const EditTransactionModal = ({
       >
         <div className="flex flex-col ">
           <div className="flex gap-2 items-center justify-between">
-            {/* <span className=" rounded-full ">+</span> */}
+
             <h1>Edit Transaction</h1>
 
             <div>
-              <FiX
+             <FiX
                 size={20}
                 className="cursor-pointer text-gray-500 hover:text-black"
-                onClick={onClose}
+                onClick={() => {
+                  setError("");
+                  onClose();
+                }}
               />
             </div>
           </div>
 
-          {editError && (
-            <p className="text-red-500 text-sm mt-2">{editError}</p>
+          {error && (
+            <p className="text-red-500 text-sm mt-2">{error}</p>
           )}
           <form
             className="flex flex-col p-2 my-2 "

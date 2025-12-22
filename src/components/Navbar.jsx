@@ -87,7 +87,7 @@ const Navbar = () => {
             }`}
           />
           <div
-            className={`absolute z-10 mt-2 w-30 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden top-10 -left-1 transition-all duration-200 origin-top transform ${
+            className={`absolute z-10 mt-2 w-30 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden top-13 -left-5 transition-all duration-200 origin-top transform ${
               showCurrency ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"
             }`}
           >
@@ -147,20 +147,27 @@ const Navbar = () => {
             </div>
           </div>
         </div>
-        <div
-          className="bg-gray-300/50 w-10 h-10 flex items-center justify-center rounded-full font-semibold text-gray-600  cursor-pointer "
-        >
-          {user?.displayName
-            ? user.displayName
-                .split(" ")
-                .map((name) => name[0])
-                .join("")
-                .toUpperCase()
-            : user?.email
-            ? user.email[0].toUpperCase()
-            : ""}
-
-
+        <div className="w-10 h-10 rounded-full overflow-hidden cursor-pointer bg-gray-300/50 flex items-center justify-center">
+          {user?.photoURL ? (
+            <img
+              src={user.photoURL}
+              alt="User avatar"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="font-semibold text-gray-600">
+              {user?.displayName
+                ? user.displayName
+                    .split(" ")
+                    .map((name) => name[0])
+                    .join("")
+                    .toUpperCase()
+                : user?.email
+                ? user.email[0].toUpperCase()
+                : ""}
+            </span>
+          )}
         </div>
         <div className="flex items-center justify-center"  ref={showProf}>
           <HiMenuAlt3 onClick={() => setShowProfileOptions(!showProfileOptions)} size={22} color="gray" className=" cursor-pointer hover:scale-105 transition-transform duration-150" />

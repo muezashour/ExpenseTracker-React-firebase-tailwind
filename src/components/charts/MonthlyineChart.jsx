@@ -21,7 +21,7 @@ const MonthLineChart = ({ transactions, year, month, type, currency }) => {
       type,
       currency
     );
-
+    
     const enhancedData = dailyTotals.map((item) => {
       const dateObj = new Date(year, month, item.day);
       const dayName = dateObj.toLocaleString("en-US", { weekday: "short" });
