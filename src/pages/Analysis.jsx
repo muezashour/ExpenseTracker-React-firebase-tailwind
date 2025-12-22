@@ -620,27 +620,18 @@ const Analysis = () => {
       </div>
 
 
-      <div className="flex gap-2 flex-col md:flex-row  ">
+      <div className="flex gap-2 flex-col md:flex-row lg:flex-row   ">
         <div data-aos="fade-right" className="flex items-center justify-center bg-white p-2 rounded-2xl my-2 w-full">
         <div className="p-2 md:p-0 lg:p-0 w-full min-h-[360px] z-10 ">
           <PieChart
             transactions={transactions}
-
           />
         </div>
-
         </div>
-
         <div data-aos="fade-left" className="flex items-center justify-center bg-white p-2 rounded-2xl my-2 w-full" >
-
-          <h2></h2>
-
+          <h2>hh</h2>
         </div>
-
       </div>
-
-
-
     </div>
   );
 };
