@@ -42,6 +42,7 @@ const Transactions = () => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
   const [error, setError] = useState("");
+
   // db handling
   const { addTransaction } = useAddTransaction();
   const {
@@ -53,7 +54,6 @@ const Transactions = () => {
   // transaction edit
   const [showEditModal, setShowEditModal] = useState(false);
   const [transactionToEdit, setTransactionToEdit] = useState(null);
-  const [editError, setEditError] = useState("");
   const { userID } = useGetUserInfo();
   const { updateTransaction } = useUpdateTransaction(userID);
 
@@ -62,22 +62,6 @@ const Transactions = () => {
 
   const handleEdit = async (values) => {
     if (!transactionToEdit) return;
-
-    // Check if any field was changed
-    if (
-      values.description === transactionToEdit.transactionDescription &&
-      Number(values.amount) === Number(transactionToEdit.transactionAmount) &&
-      values.selected.toLowerCase() === transactionToEdit.transactionType &&
-      values.selectedCategory.toLowerCase() ===
-        transactionToEdit.transactionCategory &&
-      values.date.toISOString().split("T")[0] ===
-        transactionToEdit.transactionDate
-    ) {
-      setEditError("No element edited");
-      return;
-    } else {
-      setEditError("");
-    }
 
     const updated = {
       transactionDescription: values.description,
@@ -543,7 +527,6 @@ const Transactions = () => {
         onClose={() => setShowEditModal(false)}
         transaction={transactionToEdit}
         currency={currency}
-        editError={editError}
         ref={refEdit}
         onSubmit={(updatedValues) => {
           handleEdit(updatedValues);

@@ -1,6 +1,6 @@
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import React, { useState, useRef } from "react";
+import  { useState, useRef } from "react";
 import { useCurrency } from "../context/CurrencyContext";
 import ReactCountryFlag from "react-country-flag";
 import { FaChevronUp } from "react-icons/fa";
@@ -13,12 +13,10 @@ import CountUp from "react-countup";
 import { FaEuroSign } from "react-icons/fa";
 import { FaTurkishLiraSign } from "react-icons/fa6";
 import { UserContext } from "../context/AuthContext";
-import { FaSpinner } from "react-icons/fa";
+
 import { useClickOutside } from "../hooks/useClickOutside";
-import { exportAnalysisCSV } from "../utils/exportCSV";
-
-
-
+import {  exportAnalysisPDF } from "../utils/exportPDF";
+import  PieChart  from "../components/charts/pieChart";
 
 const Analysis = () => {
   const ref = useRef(null);
@@ -26,8 +24,7 @@ const Analysis = () => {
   const yearRef = useRef(null);
   const currencyRef = useRef(null);
   const { transactionTotals, transactions } = useGetTransactions();
-  const { loading } = UserContext();
-
+  const { user,loading } = UserContext();
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -75,9 +72,7 @@ const Analysis = () => {
     }
   });
   const monthlySavings = monthlyIncome - monthlyExpense;
-
   const incomePercent = 100;
-
   const expensePercent =
     monthlyIncome > 0 ? (monthlyExpense / monthlyIncome) * 100 : 0;
 
@@ -105,9 +100,8 @@ const Analysis = () => {
       </div>
     );
   }
-
   return (
-    <div className="p-3 sm:p-4 md:p-8 lg:p-8 flex flex-col min-h-screen">
+    <div className="p-3 sm:p-4 md:p-8 lg:p-8 flex flex-col min-h-screen bg-[rgba(242,242,242,0.604)]">
       {/* Header */}
 
       <div className="flex items-center justify-between p-3">
@@ -123,7 +117,9 @@ const Analysis = () => {
           </h1>
         </div>
         <div>
-          <div
+          <div className="flex gap-2">
+
+             <div
             ref={currencyRef}
             onClick={() => setShowCurrency(!showCurrency)}
             className=" hover:shadow-md transition-shadow duration-75 flex items-center gap-2 justify-between rounded-full  px-5 py-2 cursor-pointer relative bg-white"
@@ -176,7 +172,7 @@ const Analysis = () => {
             />
 
             <div
-              className={`absolute z-10 mt-2 w-30  bg-white rounded-xl shadow-lg border border-gray-300 overflow-hidden top-10 -left-9 transition-all duration-200 origin-top transform ${
+              className={`absolute z-10 mt-2 w-30  bg-white rounded-xl shadow-lg border border-gray-300 overflow-hidden top-12 -left-7 transition-all duration-200 origin-top transform ${
                 showCurrency
                   ? "scale-100 opacity-100"
                   : "scale-95 opacity-0 pointer-events-none"
@@ -236,6 +232,29 @@ const Analysis = () => {
                 />
                 <span className="ml-2">EURO</span>
               </div>
+            </div>
+            </div>
+              <div className="w-13 h-13 rounded-full overflow-hidden cursor-pointer bg-gray-300/50 flex items-center justify-center shadow-2xl shadow-amber-400">
+          {user?.photoURL ? (
+            <img
+              src={user.photoURL}
+              alt="User avatar"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="font-semibold text-gray-600">
+              {user?.displayName
+                ? user.displayName
+                    .split(" ")
+                    .map((name) => name[0])
+                    .join("")
+                    .toUpperCase()
+                : user?.email
+                ? user.email[0].toUpperCase()
+                : ""}
+            </span>
+          )}
             </div>
           </div>
         </div>
@@ -410,9 +429,18 @@ const Analysis = () => {
 
               </div>
                <div>
-                  <button className="mx-2 text-sm bg-blue-600 cursor-pointer hover:bg-blue-500 text-white px-4 py-1 rounded-xl border"
+                  <button
+                    className="
+    mx-2 text-sm bg-gray-800 cursor-pointer
+    hover:bg-gray-700
+    text-white px-4 py-1 rounded-xl border
+    shadow-xl
+    hover:shadow-2xlz
+    transition-all duration-200
+
+  "
                     onClick={() =>
-                      exportAnalysisCSV(
+                      exportAnalysisPDF(
                         chartType === "AnnualChart"
                           ? "Annual"
                           : chartType === "MonthlyChart"
@@ -421,12 +449,12 @@ const Analysis = () => {
                         transactions,
                         selectedMonth,
                         selectedYear,
-                        currency
+                        currency,
+                        user?.displayName || user?.email || "User"
                       )
                     }
-
                   >
-                    Export CSV
+                    Export PDF
                   </button>
                 </div>
             </div>
@@ -590,6 +618,29 @@ const Analysis = () => {
           </div>
         </div>
       </div>
+
+
+      <div className="flex gap-2 flex-col md:flex-row  ">
+        <div data-aos="fade-right" className="flex items-center justify-center bg-white p-2 rounded-2xl my-2 w-full">
+        <div className="p-2 md:p-0 lg:p-0 w-full min-h-[360px] z-10 ">
+          <PieChart
+            transactions={transactions}
+
+          />
+        </div>
+
+        </div>
+
+        <div data-aos="fade-left" className="flex items-center justify-center bg-white p-2 rounded-2xl my-2 w-full" >
+
+          <h2></h2>
+
+        </div>
+
+      </div>
+
+
+
     </div>
   );
 };
