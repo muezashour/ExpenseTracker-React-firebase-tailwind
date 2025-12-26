@@ -73,7 +73,7 @@ const WeeklyChart = ({ transactions, type, currency }) => {
   };
   return (
     <div
-      className="h-48 w-full   min-h-[320px] md:min-h-[320px] lg:min-h-[390px] bg-white p-4 md:p-3 lg:p-8 rounded-xl shadow-sm focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 active:ring-0"
+      className="h-48 w-full   min-h-80 md:min-h-80 lg:min-h-[390px] bg-white p-4 md:p-3 lg:p-8 rounded-xl shadow-sm focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 active:ring-0"
       tabIndex={-1}
       style={{ outline: "none" }}
     >

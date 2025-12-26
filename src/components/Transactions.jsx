@@ -99,7 +99,6 @@ const Transactions = () => {
       }
     }
   };
-
   // form submit handler
   const onSubmit = (e) => {
     e.preventDefault();

@@ -21,7 +21,7 @@ const MonthLineChart = ({ transactions, year, month, type, currency }) => {
       type,
       currency
     );
-    
+
     const enhancedData = dailyTotals.map((item) => {
       const dateObj = new Date(year, month, item.day);
       const dayName = dateObj.toLocaleString("en-US", { weekday: "short" });
@@ -69,7 +69,7 @@ const MonthLineChart = ({ transactions, year, month, type, currency }) => {
   };
 
   return (
-    <div className="h-48 w-full   min-h-[320px] md:min-h-[320px] lg:min-h-[390px] bg-white p-3 md:p-3 lg:p-8 rounded-xl shadow-sm focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 active:ring-0">
+    <div className="h-48 w-full   min-h-80 md:min-h-80 lg:min-h-[390px] bg-white p-3 md:p-3 lg:p-8 rounded-xl shadow-sm focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 active:ring-0">
       <h1 className="text-lg font-semibold mb-2 capitalize">{type} Chart</h1>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
