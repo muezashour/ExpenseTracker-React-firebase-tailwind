@@ -1,6 +1,6 @@
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import  { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useCurrency } from "../context/CurrencyContext";
 import ReactCountryFlag from "react-country-flag";
 import { FaChevronUp } from "react-icons/fa";
@@ -13,18 +13,23 @@ import CountUp from "react-countup";
 import { FaEuroSign } from "react-icons/fa";
 import { FaTurkishLiraSign } from "react-icons/fa6";
 import { UserContext } from "../context/AuthContext";
-
+import {
+  getCategoryAnalytics,
+  getCategoryTransactions,
+} from "../utils/getCategoryTotals";
+import CategoryTransactionsModal from "../components/CategoryTransactionsModal";
 import { useClickOutside } from "../hooks/useClickOutside";
-import {  exportAnalysisPDF } from "../utils/exportPDF";
-import  PieChart  from "../components/charts/pieChart";
+import { exportAnalysisPDF } from "../utils/exportPDF";
+import PieChart from "../components/charts/pieChart";
 
 const Analysis = () => {
   const ref = useRef(null);
+  const reftype = useRef(null);
   const monthRef = useRef(null);
   const yearRef = useRef(null);
   const currencyRef = useRef(null);
   const { transactionTotals, transactions } = useGetTransactions();
-  const { user,loading } = UserContext();
+  const { user, loading } = UserContext();
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -32,6 +37,7 @@ const Analysis = () => {
 
   const { balance } = transactionTotals;
   const [view, setView] = useState("expense");
+  const [type, setType] = useState(false);
   const navigate = useNavigate();
   const { currency, setCurrency } = useCurrency();
   const [showCurrency, setShowCurrency] = useState(false);
@@ -42,13 +48,42 @@ const Analysis = () => {
   const [showMonthSelector, setShowMonthSelector] = useState(false);
   const [showYearSelector, setShowYearSelector] = useState(false);
 
-  const renderCurrencyIcon = (className = "") => {
+  const [tooltip, setTooltip] = useState({
+    show: false,
+    x: 0,
+    y: 0,
+    text: "",
+  });
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  // Close modal if no selected category (prevents stale modal state)
+  if (isCategoryModalOpen && !selectedCategory) {
+    setIsCategoryModalOpen(false);
+  }
+
+  const getCat = getCategoryAnalytics(transactions, view, currency).sort(
+    (a, b) => b.value - a.value
+  );
+
+  const categoryTransactions = selectedCategory
+    ? getCategoryTransactions(transactions, {
+        category: selectedCategory,
+        type: view,
+        currency,
+        month: selectedMonth,
+        year: selectedYear,
+      })
+    : [];
+
+  const renderCurrencyIcon = (className = "", size = 38) => {
     if (currency === "USD")
-      return <FaDollarSign className={className} size={38} />;
+      return <FaDollarSign className={className} size={size} />;
     if (currency === "TL")
-      return <FaTurkishLiraSign className={className} size={38} />;
+      return <FaTurkishLiraSign className={className} size={size} />;
     if (currency === "EURO")
-      return <FaEuroSign className={className} size={38} />;
+      return <FaEuroSign className={className} size={size} />;
     return null;
   };
 
@@ -85,6 +120,7 @@ const Analysis = () => {
   useClickOutside(monthRef, () => setShowMonthSelector(false));
   useClickOutside(yearRef, () => setShowYearSelector(false));
   useClickOutside(currencyRef, () => setShowCurrency(false));
+  useClickOutside(reftype, () => setType(false));
 
   if (loading) {
     return (
@@ -118,143 +154,142 @@ const Analysis = () => {
         </div>
         <div>
           <div className="flex gap-2">
-
-             <div
-            ref={currencyRef}
-            onClick={() => setShowCurrency(!showCurrency)}
-            className=" hover:shadow-md transition-shadow duration-75 flex items-center gap-2 justify-between rounded-full  px-5 py-2 cursor-pointer relative bg-white"
-          >
-            <span>
-              {currency === "USD" && (
-                <ReactCountryFlag
-                  countryCode="US"
-                  svg
-                  style={{
-                    width: "1.3em",
-                    height: "1.3em",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                  }}
-                />
-              )}
-              {currency === "TL" && (
-                <ReactCountryFlag
-                  countryCode="TR"
-                  svg
-                  style={{
-                    width: "1.3em",
-                    height: "1.3em",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                  }}
-                />
-              )}
-              {currency === "EURO" && (
-                <ReactCountryFlag
-                  countryCode="EU"
-                  svg
-                  style={{
-                    width: "1.3em",
-                    height: "1.3em",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                  }}
-                />
-              )}
-            </span>
-
-            <FaChevronUp
-              size={14}
-              color="gray"
-              className={`transition-transform ${
-                showCurrency ? "rotate-180" : "rotate-0"
-              }`}
-            />
-
             <div
-              className={`absolute z-10 mt-2 w-30  bg-white rounded-xl shadow-lg border border-gray-300 overflow-hidden top-12 -left-7 transition-all duration-200 origin-top transform ${
-                showCurrency
-                  ? "scale-100 opacity-100"
-                  : "scale-95 opacity-0 pointer-events-none"
-              }`}
+              ref={currencyRef}
+              onClick={() => setShowCurrency(!showCurrency)}
+              className=" hover:shadow-md transition-shadow duration-75 flex items-center gap-2 justify-between rounded-full  px-5 py-2 cursor-pointer relative bg-white"
             >
+              <span>
+                {currency === "USD" && (
+                  <ReactCountryFlag
+                    countryCode="US"
+                    svg
+                    style={{
+                      width: "1.3em",
+                      height: "1.3em",
+                      borderRadius: "9999px",
+                      overflow: "hidden",
+                    }}
+                  />
+                )}
+                {currency === "TL" && (
+                  <ReactCountryFlag
+                    countryCode="TR"
+                    svg
+                    style={{
+                      width: "1.3em",
+                      height: "1.3em",
+                      borderRadius: "9999px",
+                      overflow: "hidden",
+                    }}
+                  />
+                )}
+                {currency === "EURO" && (
+                  <ReactCountryFlag
+                    countryCode="EU"
+                    svg
+                    style={{
+                      width: "1.3em",
+                      height: "1.3em",
+                      borderRadius: "9999px",
+                      overflow: "hidden",
+                    }}
+                  />
+                )}
+              </span>
+
+              <FaChevronUp
+                size={14}
+                color="gray"
+                className={`transition-transform ${
+                  showCurrency ? "rotate-180" : "rotate-0"
+                }`}
+              />
+
               <div
-                onClick={() => setCurrency("USD")}
-                id="USD"
-                value="USD"
-                className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50  cursor-pointer transition-colors"
+                className={`absolute z-10 mt-2 w-30  bg-white rounded-xl shadow-lg border border-gray-300 overflow-hidden top-12 -left-7 transition-all duration-200 origin-top transform ${
+                  showCurrency
+                    ? "scale-100 opacity-100"
+                    : "scale-95 opacity-0 pointer-events-none"
+                }`}
               >
-                <ReactCountryFlag
-                  countryCode="US"
-                  svg
-                  style={{
-                    width: "1.3em",
-                    height: "1.3em",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                  }}
-                />
-                <span className="ml-2">USD</span>
-              </div>
-              <div
-                onClick={() => setCurrency("TL")}
-                id="TL"
-                value="TL"
-                className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50 cursor-pointer transition-colors"
-              >
-                <ReactCountryFlag
-                  countryCode="TR"
-                  svg
-                  style={{
-                    width: "1.3em",
-                    height: "1.3em",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                  }}
-                />
-                <span className="ml-2">TL</span>
-              </div>
-              <div
-                onClick={() => setCurrency("EURO")}
-                id="EURO"
-                value="EURO"
-                className="text-gray-500 font-semibold font-mono flex items-center  px-4 py-2 hover:bg-green-50  cursor-pointer transition-colors"
-              >
-                <ReactCountryFlag
-                  countryCode="EU"
-                  svg
-                  style={{
-                    width: "1.3em",
-                    height: "1.3em",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                  }}
-                />
-                <span className="ml-2">EURO</span>
+                <div
+                  onClick={() => setCurrency("USD")}
+                  id="USD"
+                  value="USD"
+                  className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50  cursor-pointer transition-colors"
+                >
+                  <ReactCountryFlag
+                    countryCode="US"
+                    svg
+                    style={{
+                      width: "1.3em",
+                      height: "1.3em",
+                      borderRadius: "9999px",
+                      overflow: "hidden",
+                    }}
+                  />
+                  <span className="ml-2">USD</span>
+                </div>
+                <div
+                  onClick={() => setCurrency("TL")}
+                  id="TL"
+                  value="TL"
+                  className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50 cursor-pointer transition-colors"
+                >
+                  <ReactCountryFlag
+                    countryCode="TR"
+                    svg
+                    style={{
+                      width: "1.3em",
+                      height: "1.3em",
+                      borderRadius: "9999px",
+                      overflow: "hidden",
+                    }}
+                  />
+                  <span className="ml-2">TL</span>
+                </div>
+                <div
+                  onClick={() => setCurrency("EURO")}
+                  id="EURO"
+                  value="EURO"
+                  className="text-gray-500 font-semibold font-mono flex items-center  px-4 py-2 hover:bg-green-50  cursor-pointer transition-colors"
+                >
+                  <ReactCountryFlag
+                    countryCode="EU"
+                    svg
+                    style={{
+                      width: "1.3em",
+                      height: "1.3em",
+                      borderRadius: "9999px",
+                      overflow: "hidden",
+                    }}
+                  />
+                  <span className="ml-2">EURO</span>
+                </div>
               </div>
             </div>
-            </div>
-              <div className="w-13 h-13 rounded-full overflow-hidden cursor-pointer bg-gray-300/50 flex items-center justify-center shadow-2xl shadow-amber-400">
-          {user?.photoURL ? (
-            <img
-              src={user.photoURL}
-              alt="User avatar"
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <span className="font-semibold text-gray-600">
-              {user?.displayName
-                ? user.displayName
-                    .split(" ")
-                    .map((name) => name[0])
-                    .join("")
-                    .toUpperCase()
-                : user?.email
-                ? user.email[0].toUpperCase()
-                : ""}
-            </span>
-          )}
+            <div className="w-13 h-13 rounded-full overflow-hidden cursor-pointer bg-gray-300/50 flex items-center justify-center shadow-2xl shadow-amber-400">
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt="User avatar"
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span className="font-semibold text-gray-600">
+                  {user?.displayName
+                    ? user.displayName
+                        .split(" ")
+                        .map((name) => name[0])
+                        .join("")
+                        .toUpperCase()
+                    : user?.email
+                    ? user.email[0].toUpperCase()
+                    : ""}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -343,28 +378,55 @@ const Analysis = () => {
             {/* income &expesne toggle && ChartType   */}
 
             <div className="flex flex-col gap-2 sm:flex-row md:flex-row lg:flex-row  justify-between items-center">
-              <div className="bg-gray-200 p-1 rounded-full flex w-fit ">
-                <button
-                  onClick={() => setView("income")}
-                  className={`px-4 py-1 rounded-full font-semibold cursor-pointer ${
-                    view === "income"
-                      ? "bg-white text-green-600"
-                      : "text-gray-500"
-                  }`}
-                >
-                  Income
-                </button>
-
-                <button
-                  onClick={() => setView("expense")}
-                  className={`px-4 py-1 rounded-full font-semibold cursor-pointer ${
-                    view === "expense"
-                      ? "bg-white text-red-600"
-                      : "text-gray-500"
-                  }`}
-                >
-                  Expense
-                </button>
+              <div
+                ref={reftype}
+                onClick={() => setType(!type)}
+                className="bg-gray-50 py-2 px-4 rounded-2xl border border-gray-200 relative hover:shadow-md transition-shadow cursor-pointer "
+              >
+                <div className="flex items-center justify-center gap-2 cursor-pointer">
+                  <span className="font-sans font-semibold text-sm capitalize">
+                    {view}
+                  </span>
+                  <FaChevronUp
+                    size={14}
+                    color="gray"
+                    className={`transition-transform ${
+                      type ? "rotate-180" : "rotate-0"
+                    }`}
+                  />
+                </div>
+                <div className="flex flex-col items-center ">
+                  <div
+                    className={`absolute z-30 mt-2 w-fit bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden top-10 -left-1 transition-all duration-200 ${
+                      type
+                        ? "scale-100 opacity-100"
+                        : "scale-95 opacity-0 pointer-events-none"
+                    }`}
+                  >
+                    <div
+                      onClick={() => {
+                        setView("income");
+                        setType(false);
+                      }}
+                      id="AnnualChart"
+                      value="AnnualChart"
+                      className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50  cursor-pointer transition-colors"
+                    >
+                      <span className="ml-2">Income</span>
+                    </div>
+                    <div
+                      onClick={() => {
+                        setView("expense");
+                        setType(false);
+                      }}
+                      id="MonthlyChart"
+                      value="MonthlyChart"
+                      className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50 cursor-pointer transition-colors"
+                    >
+                      <span className="ml-2">Expense</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div
                 ref={ref}
@@ -426,11 +488,10 @@ const Analysis = () => {
                     </div>
                   </div>
                 </div>
-
               </div>
-               <div>
-                  <button
-                    className="
+              <div>
+                <button
+                  className="
     mx-2 text-sm bg-gray-800 cursor-pointer
     hover:bg-gray-700
     text-white px-4 py-1 rounded-xl border
@@ -439,32 +500,31 @@ const Analysis = () => {
     transition-all duration-200
 
   "
-                    onClick={() =>
-                      exportAnalysisPDF(
-                        chartType === "AnnualChart"
-                          ? "Annual"
-                          : chartType === "MonthlyChart"
-                          ? "Monthly"
-                          : "Weekly",
-                        transactions,
-                        selectedMonth,
-                        selectedYear,
-                        currency,
-                        user?.displayName || user?.email || "User"
-                      )
-                    }
-                  >
-                    Export PDF
-                  </button>
-                </div>
+                  onClick={() =>
+                    exportAnalysisPDF(
+                      chartType === "AnnualChart"
+                        ? "Annual"
+                        : chartType === "MonthlyChart"
+                        ? "Monthly"
+                        : "Weekly",
+                      transactions,
+                      selectedMonth,
+                      selectedYear,
+                      currency,
+                      user?.displayName || user?.email || "User"
+                    )
+                  }
+                >
+                  Export PDF
+                </button>
+              </div>
             </div>
 
             {/* Chart container */}
-            <div className="mt-1 flex-col " >
+            <div className="mt-1 flex-col ">
               <div
                 className={`flex justify-center gap-3  relative my-3 transition-all duration-200 z-20 ${
                   chartType === "MonthlyChart"
-
                     ? "scale-105 opacity-100"
                     : "scale-95 opacity-0 pointer-events-none"
                 }`}
@@ -612,31 +672,154 @@ const Analysis = () => {
                     />
                   )}
                 </div>
-
               </div>
             </div>
           </div>
         </div>
       </div>
 
-
       <div className="flex gap-2 flex-col md:flex-row lg:flex-row   ">
-        <div data-aos="fade-right" className="flex items-center justify-center bg-white p-2 rounded-2xl my-2 w-full">
-        <div className="p-2 md:p-0 lg:p-0 w-full min-h-[360px] z-10 ">
-          <PieChart
-            transactions={transactions}
-          />
+        <div
+          data-aos="fade-right"
+          className="flex items-center justify-center bg-white p-2 rounded-2xl my-2 w-full"
+        >
+          <div className="p-2 md:p-0 lg:p-0 w-full min-h-[340px] z-10 ">
+            <PieChart transactions={transactions} view={view} />
+          </div>
         </div>
-        </div>
-        <div data-aos="fade-left" className="flex items-center justify-center bg-white p-2 rounded-2xl my-2 w-full" >
-          <h2>hh</h2>
+        <div
+          data-aos="fade-left"
+          className="bg-white rounded-2xl my-2 w-full max-h-[360px] flex flex-col"
+        >
+          <div className="p-4 shrink-0">
+             <h2 className="text-lg font-semibold text-gray-700 mb-4 capitalize">
+            {view} by Category
+          </h2>
+          <div className="relative  ">
+            <div className=" w-full h-3 bg-gray-200 rounded-full overflow-hidden flex mb-6 ">
+              {getCat.map((item, index) => (
+                <div
+                  key={index}
+                  className="h-full min-w-1.5"
+                  style={{
+                    width: `${item.percent}%`,
+                    backgroundColor: item.color,
+                  }}
+                />
+              ))}
+            </div>
+            {/* interaction layer */}
+            <div className="absolute inset-0 flex">
+              {getCat.map((item, index) => (
+                <div
+                  key={`hover-${index}`}
+                  className="h-full min-w-1.5 "
+                  style={{ width: `${item.percent}%` }}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setTooltip({
+                      show: true,
+                      x: rect.left + rect.width / 2,
+                      y: rect.top,
+                      text: `${item.name} · ${item.percent}%`,
+                    });
+                  }}
+                  onMouseLeave={() =>
+                    setTooltip((prev) => ({ ...prev, show: false }))
+                  }
+                />
+              ))}
+            </div>
+          </div>
+          </div>
+
+          {/* Progress bar */}
+
+          {/* Category rows */}
+          <div className="space-y-5 overflow-auto p-4">
+            {getCat.map((item, i) => (
+              <div
+                key={i}
+                onClick={() => {
+                  setSelectedCategory(item.name);
+                  setIsCategoryModalOpen(true);
+                }}
+                className=" flex cursor-pointer hover:bg-gray-100 p-2 rounded-xl transition-all  duration-300 ease-in-out animate-fadeUp
+                           items-center justify-between "
+              >
+                <div className="flex items-center gap-4">
+                  <svg
+                    className="w-12 h-12 -rotate-90"
+                    viewBox="0 0 36 36"
+                  >
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.9155"
+                      fill="none"
+                      stroke="#e5e7eb"
+                      strokeWidth="4"
+                    />
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.9155"
+                      fill="none"
+                      stroke={item.color}
+                      strokeWidth="4"
+                      strokeDasharray={`${item.percent} 100`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div>
+                    <p className="font-medium text-gray-700 capitalize">
+                      {item.name}
+                    </p>
+                    <p className="text-xs text-gray-400 font-mono">
+                      {item.percent}%  monthly
+                    </p>
+                  </div>
+                </div>
+                <span className="font-semibold te text-gray-800">
+                  {renderCurrencyIcon("inline-block mr-1 text-gray-600 ", 16)}
+                  {item.value.toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+    {tooltip.show && (
+      <div
+        className="fixed z-9999
+                   bg-gray-900 text-white text-xs px-2 py-1
+                   rounded-md shadow-lg pointer-events-none capitalize"
+        style={{
+          left: tooltip.x,
+          top: tooltip.y - 10,
+          transform: "translateX(-50%) translateY(-100%)",
+        }}
+      >
+        {tooltip.text}
+      </div>
+    )}
+   <CategoryTransactionsModal
+  isOpen={isCategoryModalOpen}
+  onClose={() => setIsCategoryModalOpen(false)}
+  title={
+    selectedCategory
+      ? `${selectedCategory} / ${new Date(
+          selectedYear,
+          selectedMonth
+        ).toLocaleString("en", { month: "short" })}`
+      : ""
+  }
+  transactions={categoryTransactions}
+        currencyIcon={renderCurrencyIcon}
+        type={view}
+/>
     </div>
   );
 };
 
 export default Analysis;
-
-
-

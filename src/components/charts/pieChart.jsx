@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   GetCategoryTotals,
   getMonthlyTotal,
@@ -9,7 +9,9 @@ import { FaEuroSign } from "react-icons/fa";
 import { FaTurkishLiraSign } from "react-icons/fa6";
 import { FaDollarSign } from "react-icons/fa";
 import { FaChevronUp } from "react-icons/fa";
-import { useClickOutside } from "../../hooks/useClickOutside";
+
+
+
 const CATEGORY_COLORS = {
   food: "#22c55e",
   snacks: "#4ade80",
@@ -39,19 +41,23 @@ const CATEGORY_COLORS = {
   refunds: "#38bdf8",
 };
 
-const PieChartComponent = ({ transactions }) => {
+const PieChartComponent = ({ transactions,view }) => {
   const { currency } = useCurrency();
   const [chartData, setChartData] = useState([]);
-  const [view, setView] = useState("expense");
-  const [type, setType] = useState(false);
-  const ref = useRef(null);
+
 
   const totalExpense = getMonthlyTotal(transactions, view, currency);
 
   useEffect(() => {
-    const pieData = GetCategoryTotals(transactions, view, currency);
+    const pieData = GetCategoryTotals(transactions, view, currency );
     setChartData(pieData);
+
+
+
   }, [transactions, view, currency]);
+
+
+
 
   const renderCurrencyIcon = (className = "") => {
     if (currency === "USD")
@@ -79,60 +85,11 @@ const PieChartComponent = ({ transactions }) => {
     );
   };
 
-  useClickOutside(ref, () => setType(false));
+
   return (
     <div className="relative w-full h-[340px] md:h-[300px] flex flex-col items-start">
       <div className="p-3 flex items-center justify-between gap-4 w-full">
         <h2 className="font-mono text-lg font-semibold"> Monthly Pie Chart</h2>
-
-        <div
-          ref={ref}
-          onClick={() => setType(!type)}
-          className="bg-gray-50 py-2 px-4 rounded-2xl border border-gray-200 relative hover:shadow-md transition-shadow cursor-pointer "
-        >
-          <div className="flex items-center justify-center gap-2 cursor-pointer">
-            <span className="font-sans font-semibold text-sm capitalize">{view}</span>
-            <FaChevronUp
-              size={14}
-              color="gray"
-              className={`transition-transform ${
-                type ? "rotate-180" : "rotate-0"
-              }`}
-            />
-          </div>
-          <div className="flex flex-col items-center ">
-            <div
-              className={`absolute z-30 mt-2 w-fit  bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden top-10 -left-1 transition-all duration-200 ${
-                type
-                  ? "scale-100 opacity-100"
-                  : "scale-95 opacity-0 pointer-events-none"
-              }`}
-            >
-              <div
-                onClick={() => {
-                  setView("income");
-                  setType(false);
-                }}
-                id="AnnualChart"
-                value="AnnualChart"
-                className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50  cursor-pointer transition-colors"
-              >
-                <span className="ml-2">Income</span>
-              </div>
-              <div
-                onClick={() => {
-                  setView("expense");
-                  setType(false);
-                }}
-                id="MonthlyChart"
-                value="MonthlyChart"
-                className="text-gray-500 font-semibold font-mono flex items-center px-4 py-2 hover:bg-green-50 cursor-pointer transition-colors"
-              >
-                <span className="ml-2">Expense</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {chartData.length === 0 ? (
@@ -209,7 +166,7 @@ const PieChartComponent = ({ transactions }) => {
                 text-sm
                 px-1
                 scrollbar-hide
-
+                overflow-y-hidden
                 grid
                 grid-flow-col
                 auto-cols-max
@@ -229,7 +186,7 @@ const PieChartComponent = ({ transactions }) => {
                   className="flex items-center gap-2 px-2 py-1 whitespace-nowrap"
                 >
                   <span
-                    className="w-3 h-3 rounded-full cursor-pointer transition-transform duration-150 hover:scale-125 flex-shrink-0"
+                    className="w-3 h-3 rounded-full cursor-pointer transition-transform duration-150 hover:scale-125 shrink-0"
                     style={{
                       backgroundColor:
                         CATEGORY_COLORS[item.name?.trim().toLowerCase()] ||
