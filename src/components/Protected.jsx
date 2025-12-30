@@ -4,8 +4,6 @@ import { FaSpinner } from "react-icons/fa";
 
 const Protected = ({ children }) => {
     const { user, authResolved, loading } = UserContext();
-
-
 if (!authResolved || loading) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-gray-50">

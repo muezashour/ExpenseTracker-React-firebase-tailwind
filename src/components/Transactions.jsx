@@ -251,7 +251,7 @@ const Transactions = () => {
       setHookStartDate(null);
       setHookEndDate(null);
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate,setHookEndDate,setHookStartDate]);
 
   useClickOutside(ref, () => setOpen(false));
   useClickOutside(refCategory, () => setCategoryOpen(false));
@@ -300,7 +300,7 @@ const Transactions = () => {
           className={`
    flex flex-col bg-white rounded-2xl h-[490px] md:h-[700px] lg:h-[700px] sm:w-full lg:w[600px] duration-300  overflow-hidden p-1`}
         >
-          <div className="flex flex-col p-4 flex-shrink-0 ">
+          <div className="flex flex-col p-4 shrink-0 ">
             <div className="flex justify-between items-center">
               <div className="flex gap-2 flex-col ">
                 <h1>Recent Transactions</h1>
@@ -402,7 +402,7 @@ const Transactions = () => {
                     )}
                     <li
                       key={id}
-                      className="flex justify-between px-1 py-4 md:px-10 lg:px-10 border-b-1 border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
+                      className="flex justify-between px-1 py-4 md:px-10 lg:px-10 border-b border-gray-200 w-full transition-all  duration-300 ease-in-out animate-fadeUp"
                     >
                       <div className="flex items-center gap-3">
                         <div

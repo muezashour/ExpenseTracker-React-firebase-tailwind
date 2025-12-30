@@ -162,9 +162,9 @@ const SignIn = () => {
           </div>
 
           <div className="flex items-center w-full  text-gray-400">
-            <hr className="flex-grow border-gray-300" />
+            <hr className="grow border-gray-300" />
             <span className="mx-2 text-xs shadow-2xl">OR CONTINUE WITH</span>
-            <hr className="flex-grow border-gray-300" />
+            <hr className="grow border-gray-300" />
           </div>
 
           <div className="flex justify-between gap-4">

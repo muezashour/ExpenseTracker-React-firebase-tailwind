@@ -123,11 +123,6 @@ export const exportAnalysisPDF = async (
           15,
           finalY + 6
         );
-        doc.text(
-          `Net: ${result.totals.income - result.totals.expense} ${currency}`,
-          15,
-          finalY + 12
-        );
       }
     },
   });
