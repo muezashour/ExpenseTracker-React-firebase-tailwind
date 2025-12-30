@@ -397,7 +397,7 @@ const Analysis = () => {
                 </div>
                 <div className="flex flex-col items-center ">
                   <div
-                    className={`absolute z-30 mt-2 w-fit bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden top-10 -left-1 transition-all duration-200 ${
+                    className={`absolute z-30 mt-2 w-fit bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden top-10 transition-all duration-200 ${
                       type
                         ? "scale-100 opacity-100"
                         : "scale-95 opacity-0 pointer-events-none"
@@ -447,7 +447,7 @@ const Analysis = () => {
                 </div>
                 <div className="flex flex-col items-center ">
                   <div
-                    className={`absolute z-30 mt-2 w-fit  bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden top-10 -left-1 transition-all duration-200 ${
+                    className={`absolute z-30 mt-2 w-fit  bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden top-10 -left-2 transition-all duration-200 ${
                       showCharts
                         ? "scale-100 opacity-100"
                         : "scale-95 opacity-0 pointer-events-none"
@@ -811,7 +811,7 @@ const Analysis = () => {
       ? `${selectedCategory} / ${new Date(
           selectedYear,
           selectedMonth
-        ).toLocaleString("en", { month: "short" })}`
+        ).toLocaleString("en", { month: "long" })}`
       : ""
   }
   transactions={categoryTransactions}

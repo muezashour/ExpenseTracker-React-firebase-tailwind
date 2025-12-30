@@ -13,7 +13,7 @@ import {
 
 const AnnualLineChart = ({ transactions, type, currency }) => {
   const [chartData, SetChartData] = useState([]);
-
+  const currentYear = new Date().getFullYear();
   useEffect(() => {
     const months = [
       "Jan",
@@ -30,9 +30,15 @@ const AnnualLineChart = ({ transactions, type, currency }) => {
       "Dec",
     ];
 
-    const filtered = transactions.filter(
-      (t) => t.transactionType === type && t.currency === currency
-    );
+    const filtered = transactions.filter((t) => {
+      const d = new Date(t.transactionDate);
+
+      return (
+        t.transactionType === type &&
+        t.currency === currency &&
+        d.getFullYear() === currentYear
+      );
+    });
 
     const monthly = Array(12).fill(0);
 
@@ -48,7 +54,7 @@ const AnnualLineChart = ({ transactions, type, currency }) => {
     }));
 
     SetChartData(data);
-  }, [transactions, type, currency]);
+  }, [transactions, type, currency,currentYear]);
 
 
 

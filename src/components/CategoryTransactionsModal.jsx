@@ -61,7 +61,7 @@ const CategoryTransactionsModal = ({
                 className="flex justify-between items-center border-gray-300 border-b pb-2 transition-all  duration-300 ease-in-out animate-fadeUp"
               >
                 <div>
-                  <p className="font-medium">{t.note }</p>
+                  <p className="font-medium text-gray-400 text-sm">{t.transactionDescription }</p>
                   <p className="text-xs text-gray-400">
                     {new Date(t.transactionDate).toLocaleDateString()}
                   </p>
